@@ -1,4 +1,5 @@
 import { Game } from "../classes/Game";
+import { prices } from "../constants/prices";
 
 export const initUi = (game: Game) => {
   const toolbarTop = document.createElement("div");
@@ -47,13 +48,19 @@ export const initUi = (game: Game) => {
   <h3>Towers</h3>
   <ul id="towers-overview">
   <li>
-  <img src="assets/tower-basic.png" alt="basic tower" /><span><strong>Basic tower</strong>. Cost: 50 🪙<br/> Single target, short range, low damage, slow attackspeed, slow projectiles.</span>
+  <img src="assets/tower-basic.png" alt="basic tower" /><span><strong>Basic tower</strong>. Cost: ${
+    prices.newTower
+  } 🪙<br/> Single target, short range, low damage, slow attackspeed, slow projectiles.</span>
   </li>
   <li>
-  <img src="assets/tower-arrow.png" alt="arrow tower" /><span><strong>Arrow tower</strong>. Cost: 100 🪙<br/> Single target, medium range, low damage, medium attackspeed, medium speed projectiles.</span>
+  <img src="assets/tower-arrow.png" alt="arrow tower" /><span><strong>Arrow tower</strong>. Cost: ${
+    prices.arrowTower
+  } 🪙<br/> Single target, medium range, low damage, medium attackspeed, medium speed projectiles.</span>
   </li>
   <li>
-  <img src="assets/tower-cannon.png" alt="cannon tower" /> <span> <strong>Cannon tower</strong>. Cost: 200 🪙<br/> Splash damage, short range, high damage, very slow attackspeed, very slow projectiles.</span>
+  <img src="assets/tower-cannon.png" alt="cannon tower" /> <span> <strong>Cannon tower</strong>. Cost: ${
+    prices.cannonTower
+  } 🪙<br/> Splash damage, short range, high damage, very slow attackspeed, very slow projectiles.</span>
   </li>
   <!--
   <li>
@@ -61,7 +68,9 @@ export const initUi = (game: Game) => {
   </li>
   -->
   <li>
-  <img src="assets/tower-fire.png" alt="fire tower" /><span><strong>Fire tower</strong>. Cost: 1,000 🪙<br/> Small splash damage, medium range, high damage, fast attackspeed, fast projectiles.</span>
+  <img src="assets/tower-fire.png" alt="fire tower" /><span><strong>Fire tower</strong>. Cost: ${prices.fireTower.toLocaleString(
+    "en-US"
+  )} 🪙<br/> Small splash damage, medium range, high damage, fast attackspeed, fast projectiles.</span>
   </li>
   </ul>
   `;
