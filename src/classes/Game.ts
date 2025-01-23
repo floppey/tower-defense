@@ -7,13 +7,16 @@ import { MouseHandler } from "../input/MouseHandler";
 import { GridPosition } from "../types/types";
 import { initUi } from "../ui/initUi";
 import { updateHealth } from "../ui/updateHealth";
+import { updateKillCount } from "../ui/updateKillCount";
 import { updateMoney } from "../ui/updateMoney";
+import { updateMonsterCount } from "../ui/updateMonsterCount";
 import { Level } from "./Level";
 import Monster from "./Monster";
 
 export class Game {
   #health: number = 10;
   #money: number = 100;
+  #killCount = 0;
   debug: boolean = false;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -65,17 +68,25 @@ export class Game {
     initUi(this);
   }
 
+  getNumberOfMonstersPerWave() {
+    return 20 + (this.level.wave - 1) * 2;
+  }
+
   startWave() {
-    if (this.tempCounter < 25 && this.tempCounter !== -1) {
+    if (
+      this.tempCounter < this.getNumberOfMonstersPerWave() &&
+      this.tempCounter !== -1
+    ) {
       return;
     }
+    this.level.wave++;
     this.tempCounter = 0;
     this.spawnMonsters();
   }
 
   spawnMonsters() {
     setTimeout(() => {
-      if (this.tempCounter < 25) {
+      if (this.tempCounter < this.getNumberOfMonstersPerWave()) {
         this.spawnMonster();
         this.tempCounter++;
         this.spawnMonsters();
@@ -84,14 +95,23 @@ export class Game {
   }
 
   spawnMonster() {
+    let health = 100;
+    if (this.level.wave > 3) {
+      health = 100 + (this.level.wave - 3) * 10;
+    }
+    let speed = 1;
+    if (this.level.wave > 5) {
+      speed = 1 + (this.level.wave - 5) * 0.1;
+    }
     this.level.monsters.push(
       new Monster({
         game: this,
-        health: 100,
-        speed: 1,
+        health,
+        speed,
         damage: 1,
       })
     );
+    updateMonsterCount(this.level.monsters.length);
   }
 
   loadImages() {
@@ -119,6 +139,7 @@ export class Game {
     );
     deadMonsters.forEach((monster) => {
       this.money += monster.reward;
+      this.killCount++;
     });
     this.level.monsters = this.level.monsters.filter((monster) => {
       return (
@@ -140,6 +161,9 @@ export class Game {
       if (confirm("Game Over! Play again?")) {
         window.location.reload();
       }
+    }
+    if (deadMonsters.length > 0 || monstersInEnd.length > 0) {
+      updateMonsterCount(this.level.monsters.length);
     }
   }
 
@@ -235,5 +259,13 @@ export class Game {
   set money(value: number) {
     this.#money = value;
     updateMoney(this.#money);
+  }
+
+  get killCount(): number {
+    return this.#killCount;
+  }
+  set killCount(value: number) {
+    this.#killCount = value;
+    updateKillCount(this.#killCount);
   }
 }

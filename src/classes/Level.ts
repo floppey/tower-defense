@@ -1,4 +1,5 @@
 import { GridPosition } from "../types/types";
+import { updateWaveCount } from "../ui/updateWaveCount";
 import { Entity } from "./Entity";
 import { Game } from "./Game";
 import { MapMatrix } from "./MapMatrix";
@@ -15,6 +16,7 @@ export class Level extends Entity {
   maxRepeatSquares: number;
   towers: Tower[] = [];
   monsters: Monster[] = [];
+  #wave: number = 0;
 
   constructor(
     game: Game,
@@ -32,5 +34,13 @@ export class Level extends Entity {
     this.maxLength = maxLength;
     this.maxRepeatSquares = maxRepeatSquares;
     this.mapMatrix = new MapMatrix(this);
+  }
+
+  get wave() {
+    return this.#wave;
+  }
+  set wave(value: number) {
+    this.#wave = value;
+    updateWaveCount(this.#wave);
   }
 }

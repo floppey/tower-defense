@@ -22,11 +22,15 @@ export const initUi = (game: Game) => {
     </div>
     <div class="toolbar-item">
       <span>🌊: </span>
-      <span id="wave">1</span>
+      <span id="wave">0</span>
     </div>
     <div class="toolbar-item">
       <span>👿: </span>
       <span id="monsters">0</span>
+    </div>
+     <div class="toolbar-item">
+      <span>💀: </span>
+      <span id="kills">0</span>
     </div>
   `;
   toolbarTop.appendChild(startWaveButton);
