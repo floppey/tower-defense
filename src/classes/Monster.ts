@@ -5,6 +5,7 @@ import { Game } from "./Game";
 export default class Monster extends Entity {
   game: Game;
   health: number;
+  maxHealth: number;
   speed: number;
   gridPosition: GridPosition | null;
   nextPosition: GridPosition | null;
@@ -29,6 +30,7 @@ export default class Monster extends Entity {
     super();
     this.game = game;
     this.health = health;
+    this.maxHealth = health;
     this.speed = speed;
     this.distance = 0;
     this.gridPosition = this.game.level.mapMatrix.getPathPosition(0);
@@ -121,7 +123,7 @@ export default class Monster extends Entity {
     ctx.fillStyle = "red";
     ctx.fillRect(x, y - 10, monsterSize, 5);
     ctx.fillStyle = "green";
-    ctx.fillRect(x, y - 10, (monsterSize * this.health) / 100, 5);
+    ctx.fillRect(x, y - 10, (monsterSize * this.health) / this.maxHealth, 5);
   }
 
   takeDamage(amount: number) {
