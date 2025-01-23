@@ -94,34 +94,52 @@ export class Game {
         this.tempCounter++;
         this.spawnMonsters();
       }
-    }, 500);
+    }, 500 / this.getSpeed());
   }
 
-  spawnMonster() {
-    let health = 100;
-    if (this.level.wave > 3) {
-      health = 100 + (this.level.wave - 3) * 15;
-    }
+  getSpeed() {
     let speed = 1;
     if (this.level.wave > 5) {
-      speed = 1 + (this.level.wave - 5) * 0.2;
-      health += (this.level.wave - 5) * 10;
+      speed += (this.level.wave - 5) * 0.2;
     }
     if (this.level.wave > 10) {
-      health += (this.level.wave - 10) * 10;
       speed += (this.level.wave - 10) * 0.2;
     }
     if (this.level.wave > 15) {
-      health += (this.level.wave - 15) * 20;
+      speed += (this.level.wave - 15) * 0.2;
     }
     if (this.level.wave > 20) {
-      health += (this.level.wave - 20) * 20;
+      speed += (this.level.wave - 20) * 0.2;
     }
+    return speed;
+  }
+
+  getHealth() {
+    let health = 100;
+    if (this.level.wave > 3) {
+      health += (this.level.wave - 3) * 15;
+    }
+    if (this.level.wave > 5) {
+      health += (this.level.wave - 5) * 10;
+    }
+    if (this.level.wave > 10) {
+      health += (this.level.wave - 10) * 25;
+    }
+    if (this.level.wave > 15) {
+      health += (this.level.wave - 15) * 50;
+    }
+    if (this.level.wave > 20) {
+      health += (this.level.wave - 20) * 100;
+    }
+    return health;
+  }
+
+  spawnMonster() {
     this.level.monsters.push(
       new Monster({
         game: this,
-        health,
-        speed,
+        health: this.getHealth(),
+        speed: this.getSpeed(),
         damage: 1,
       })
     );
@@ -219,10 +237,11 @@ export class Game {
       this.ctx.save();
       this.ctx.fillStyle = "red";
       this.ctx.font = "30px Arial";
+      this.ctx.textAlign = "center";
       this.ctx.fillText(
         "Game Over!",
-        this.canvas.width / 2 - 50,
-        this.canvas.height / 2
+        this.canvas.width / 2,
+        this.canvas.height / 1.5
       );
       this.ctx.restore();
     }
