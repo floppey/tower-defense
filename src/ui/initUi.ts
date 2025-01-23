@@ -35,6 +35,12 @@ export const initUi = (game: Game) => {
     </div>
   `;
   toolbarTop.appendChild(startWaveButton);
+  const automode = document.createElement("label");
+  automode.innerHTML = `
+    <input type="checkbox" id="automode" />
+    <span>Auto mode</span>
+  `;
+  toolbarTop.appendChild(automode);
   document.body.insertBefore(toolbarTop, document.body.firstChild);
 
   const asideRight = document.createElement("aside");

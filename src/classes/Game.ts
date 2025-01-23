@@ -220,6 +220,12 @@ export class Game {
     if (deadMonsters.length > 0 || monstersInEnd.length > 0) {
       updateMonsterCount(this.level.monsters.length);
     }
+    if (this.level.monsters.length === 0) {
+      console.log("Wave completed!");
+      if ((document.getElementById("automode") as HTMLInputElement)?.checked) {
+        this.startWave();
+      }
+    }
   }
 
   render() {
