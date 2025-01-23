@@ -41,8 +41,11 @@ export class MouseHandler {
   handleClick() {
     const cell = this.getCellAtMousePosition();
     if (this.game.level.mapMatrix.matrix[cell.col][cell.row] === UNSET_CELL) {
-      this.game.level.mapMatrix.matrix[cell.col][cell.row] = TOWER_CELL;
-      this.game.level.towers.push(new Tower(this.game, cell));
+      if (this.game.money >= 50) {
+        this.game.level.mapMatrix.matrix[cell.col][cell.row] = TOWER_CELL;
+        this.game.level.towers.push(new Tower(this.game, cell));
+        this.game.money -= 50;
+      }
     } else if (
       this.game.level.mapMatrix.matrix[cell.col][cell.row] === TOWER_CELL
     ) {
@@ -53,12 +56,12 @@ export class MouseHandler {
         );
       });
       if (towerToUpgrade) {
-        if (towerToUpgrade.type === "basic") {
+        if (towerToUpgrade.type === "basic" && this.game.money >= 100) {
           this.game.level.towers = this.game.level.towers.filter((tower) => {
             return tower.id !== towerToUpgrade.id;
           });
           this.game.level.towers.push(new ArrowTower(this.game, cell));
-          console.log(this.game.level.towers);
+          this.game.money -= 100;
         }
       }
     }

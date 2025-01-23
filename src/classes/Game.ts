@@ -5,10 +5,15 @@ import {
 } from "../constants/mapMatrixConstants";
 import { MouseHandler } from "../input/MouseHandler";
 import { GridPosition } from "../types/types";
+import { initUi } from "../ui/initUi";
+import { updateHealth } from "../ui/updateHealth";
+import { updateMoney } from "../ui/updateMoney";
 import { Level } from "./Level";
 import Monster from "./Monster";
 
 export class Game {
+  #health: number = 10;
+  #money: number = 100;
   debug: boolean = false;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -19,7 +24,7 @@ export class Game {
   mouseHandler: MouseHandler;
   hoveredCell: GridPosition | null = null;
   images: Record<string, HTMLImageElement> = {};
-  tempCounter = 0;
+  tempCounter = -1;
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -49,7 +54,6 @@ export class Game {
       2
     );
 
-    this.spawnMonsters();
     document.body.appendChild(this.canvas);
     this.mouseHandler = new MouseHandler(this);
     this.loadImages();
@@ -58,6 +62,15 @@ export class Game {
     if (urlParams.has("debug")) {
       this.debug = true;
     }
+    initUi(this);
+  }
+
+  startWave() {
+    if (this.tempCounter < 25 && this.tempCounter !== -1) {
+      return;
+    }
+    this.tempCounter = 0;
+    this.spawnMonsters();
   }
 
   spawnMonsters() {
@@ -71,7 +84,14 @@ export class Game {
   }
 
   spawnMonster() {
-    this.level.monsters.push(new Monster(this, 100, 1, 10));
+    this.level.monsters.push(
+      new Monster({
+        game: this,
+        health: 100,
+        speed: 1,
+        damage: 1,
+      })
+    );
   }
 
   loadImages() {
@@ -90,10 +110,16 @@ export class Game {
     });
   }
 
-  public update() {
+  update() {
     const monstersInEnd = this.level.monsters.filter(
       (monster) => monster.distance >= this.level.mapMatrix.totalDistance
     );
+    const deadMonsters = this.level.monsters.filter(
+      (monster) => !monster.isAlive()
+    );
+    deadMonsters.forEach((monster) => {
+      this.money += monster.reward;
+    });
     this.level.monsters = this.level.monsters.filter((monster) => {
       return (
         monster.isAlive() &&
@@ -101,7 +127,8 @@ export class Game {
       );
     });
     monstersInEnd.forEach((monster) => {
-      console.log("Monster reached the end");
+      console.log(`Monster reached the end, -${monster.damage} health`);
+      this.health -= monster.damage;
     });
     this.level.monsters.forEach((monster) => {
       monster.move();
@@ -109,9 +136,14 @@ export class Game {
     this.level.towers.forEach((tower) => {
       tower.update();
     });
+    if (this.#health < 0) {
+      if (confirm("Game Over! Play again?")) {
+        window.location.reload();
+      }
+    }
   }
 
-  public render() {
+  render() {
     this.drawGrid();
     this.level.monsters.forEach((monster) => {
       monster.render();
@@ -121,7 +153,7 @@ export class Game {
     });
   }
 
-  public drawGrid(): void {
+  drawGrid(): void {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const { matrix } = this.level.mapMatrix;
@@ -187,5 +219,21 @@ export class Game {
       );
       this.ctx.restore();
     }
+  }
+
+  get health(): number {
+    return this.#health;
+  }
+  set health(value: number) {
+    this.#health = value;
+    updateHealth(this.#health);
+  }
+
+  get money(): number {
+    return this.#money;
+  }
+  set money(value: number) {
+    this.#money = value;
+    updateMoney(this.#money);
   }
 }

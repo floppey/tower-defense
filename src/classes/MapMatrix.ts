@@ -50,10 +50,6 @@ export class MapMatrix extends Entity {
       );
       if (attempts >= 100) {
         console.log("Failed to generate path");
-      } else {
-        console.log(
-          `Generated path with length ${this.totalDistance} in ${attempts} attempts`
-        );
       }
     });
   }

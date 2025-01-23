@@ -13,8 +13,19 @@ export default class Monster extends Entity {
   damage: number;
   lastMoveTime: number = Date.now();
   direction: Direction;
+  reward: number = 10;
 
-  constructor(game: Game, health: number, speed: number, damage: number) {
+  constructor({
+    game,
+    health,
+    speed,
+    damage,
+  }: {
+    game: Game;
+    health: number;
+    speed: number;
+    damage: number;
+  }) {
     super();
     this.game = game;
     this.health = health;
