@@ -97,11 +97,11 @@ export class Game {
   spawnMonster() {
     let health = 100;
     if (this.level.wave > 3) {
-      health = 100 + (this.level.wave - 3) * 10;
+      health = 100 + (this.level.wave - 3) * 15;
     }
     let speed = 1;
     if (this.level.wave > 5) {
-      speed = 1 + (this.level.wave - 5) * 0.1;
+      speed = 1 + (this.level.wave - 5) * 0.2;
     }
     this.level.monsters.push(
       new Monster({
