@@ -10,13 +10,14 @@ This project is a Tower Defense game where players strategically place towers to
 - Monsters that follow a path
 - Towers that can be placed on the map
 - Towers that can shoot at monsters
+- In-game currency system for purchasing and upgrading towers
+- Basic UI for displaying game information
+- Multiple levels with increasing difficulty
 
 ## Planned features
 
 - Multiple tower types with different abilities and upgrade paths
 - Various enemy types with unique strengths and weaknesses
-- Multiple levels with increasing difficulty
-- In-game currency system for purchasing and upgrading towers
 - User-friendly interface with intuitive controls
 
 ## Installation
