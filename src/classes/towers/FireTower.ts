@@ -1,12 +1,13 @@
 import { TowerType } from "../../types/types";
-import { Arrow } from "../projectiles/Arrow";
+import { Bullet } from "../projectiles/Bullet";
+import { Fireball } from "../projectiles/Fireball";
 import Tower from "./Tower";
 
-export class ArrowTower extends Tower {
+export class FireTower extends Tower {
   range: number = 5;
-  damage: number = 25;
-  attackSpeed: number = 2;
-  type: TowerType = "arrow";
+  damage: number = 500;
+  attackSpeed: number = 2.5;
+  type: TowerType = "fire";
 
   attack() {
     const currentTime = Date.now();
@@ -14,16 +15,15 @@ export class ArrowTower extends Tower {
 
     if (timeSinceLastAttack > 1000 / this.attackSpeed) {
       const target = this.getTargetsInRange();
-      if (target) {
+      if (target?.gridPosition) {
         this.game.projectiles.push(
-          new Arrow({
+          new Fireball({
             game: this.game,
-            target,
+            target: target,
             position: this.game.convertGridPositionToCoordinates(
               this.gridPosition
             ),
             damage: this.damage,
-            speed: 500,
           })
         );
         this.lastAttackTime = currentTime;

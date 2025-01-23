@@ -1,6 +1,7 @@
 import { GridPosition, TowerType } from "../../types/types";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
+import { Arrow } from "../projectiles/Arrow";
 
 export default class Tower extends Entity {
   game: Game;
@@ -59,7 +60,17 @@ export default class Tower extends Entity {
     if (timeSinceLastAttack > 1000 / this.attackSpeed) {
       const target = this.getTargetsInRange();
       if (target) {
-        target.takeDamage(this.damage);
+        this.game.projectiles.push(
+          new Arrow({
+            game: this.game,
+            target,
+            position: this.game.convertGridPositionToCoordinates(
+              this.gridPosition
+            ),
+            damage: this.damage,
+            speed: 250,
+          })
+        );
         this.lastAttackTime = currentTime;
       }
     }

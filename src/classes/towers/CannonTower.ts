@@ -1,12 +1,12 @@
 import { TowerType } from "../../types/types";
-import { Arrow } from "../projectiles/Arrow";
+import { Bullet } from "../projectiles/Bullet";
 import Tower from "./Tower";
 
-export class ArrowTower extends Tower {
+export class CannonTower extends Tower {
   range: number = 5;
-  damage: number = 25;
-  attackSpeed: number = 2;
-  type: TowerType = "arrow";
+  damage: number = 125;
+  attackSpeed: number = 0.75;
+  type: TowerType = "cannon";
 
   attack() {
     const currentTime = Date.now();
@@ -14,16 +14,15 @@ export class ArrowTower extends Tower {
 
     if (timeSinceLastAttack > 1000 / this.attackSpeed) {
       const target = this.getTargetsInRange();
-      if (target) {
+      if (target?.gridPosition) {
         this.game.projectiles.push(
-          new Arrow({
+          new Bullet({
             game: this.game,
-            target,
+            target: target.gridPosition,
             position: this.game.convertGridPositionToCoordinates(
               this.gridPosition
             ),
             damage: this.damage,
-            speed: 500,
           })
         );
         this.lastAttackTime = currentTime;

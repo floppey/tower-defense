@@ -1,5 +1,7 @@
 import { Game } from "../classes/Game";
 import { ArrowTower } from "../classes/towers/ArrowTower";
+import { CannonTower } from "../classes/towers/CannonTower";
+import { FireTower } from "../classes/towers/FireTower";
 import Tower from "../classes/towers/Tower";
 import { TOWER_CELL, UNSET_CELL } from "../constants/mapMatrixConstants";
 import { Coordinates, GridPosition } from "../types/types";
@@ -62,6 +64,21 @@ export class MouseHandler {
           });
           this.game.level.towers.push(new ArrowTower(this.game, cell));
           this.game.money -= 100;
+        } else if (towerToUpgrade.type === "arrow" && this.game.money >= 200) {
+          this.game.level.towers = this.game.level.towers.filter((tower) => {
+            return tower.id !== towerToUpgrade.id;
+          });
+          this.game.level.towers.push(new CannonTower(this.game, cell));
+          this.game.money -= 200;
+        } else if (
+          towerToUpgrade.type === "cannon" &&
+          this.game.money >= 1000
+        ) {
+          this.game.level.towers = this.game.level.towers.filter((tower) => {
+            return tower.id !== towerToUpgrade.id;
+          });
+          this.game.level.towers.push(new FireTower(this.game, cell));
+          this.game.money -= 1000;
         }
       }
     }

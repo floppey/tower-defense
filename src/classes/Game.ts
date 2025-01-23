@@ -4,7 +4,7 @@ import {
   UNSET_CELL,
 } from "../constants/mapMatrixConstants";
 import { MouseHandler } from "../input/MouseHandler";
-import { GridPosition } from "../types/types";
+import { Coordinates, GridPosition } from "../types/types";
 import { initUi } from "../ui/initUi";
 import { updateHealth } from "../ui/updateHealth";
 import { updateKillCount } from "../ui/updateKillCount";
@@ -12,6 +12,7 @@ import { updateMoney } from "../ui/updateMoney";
 import { updateMonsterCount } from "../ui/updateMonsterCount";
 import { Level } from "./Level";
 import Monster from "./Monster";
+import { Projectile } from "./projectiles/Projectile";
 
 export class Game {
   #health: number = 10;
@@ -28,6 +29,7 @@ export class Game {
   hoveredCell: GridPosition | null = null;
   images: Record<string, HTMLImageElement> = {};
   tempCounter = -1;
+  projectiles: Projectile[] = [];
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -74,8 +76,9 @@ export class Game {
 
   startWave() {
     if (
-      this.tempCounter < this.getNumberOfMonstersPerWave() &&
-      this.tempCounter !== -1
+      this.#health <= 0 ||
+      (this.tempCounter < this.getNumberOfMonstersPerWave() &&
+        this.tempCounter !== -1)
     ) {
       return;
     }
@@ -102,6 +105,17 @@ export class Game {
     let speed = 1;
     if (this.level.wave > 5) {
       speed = 1 + (this.level.wave - 5) * 0.2;
+      health += (this.level.wave - 5) * 10;
+    }
+    if (this.level.wave > 10) {
+      health += (this.level.wave - 10) * 10;
+      speed += (this.level.wave - 10) * 0.2;
+    }
+    if (this.level.wave > 15) {
+      health += (this.level.wave - 15) * 20;
+    }
+    if (this.level.wave > 20) {
+      health += (this.level.wave - 20) * 20;
     }
     this.level.monsters.push(
       new Monster({
@@ -122,6 +136,26 @@ export class Game {
       "tower-mage",
       "tower-ice",
       "tower-fire",
+      "arrow",
+      "bullet-1",
+      "bullet-2",
+      "bullet-3",
+      "bullet-4",
+      "fire-1",
+      "fire-2",
+      "frost-1",
+      "frost-2",
+      "frost-3",
+      "frost-4",
+      "frost-5",
+      "frost-6",
+      "frost-7",
+      "frost-8",
+      "frost-9",
+      "frost-10",
+      "frost-11",
+      "frost-12",
+      "frost-13",
     ];
     imageNames.forEach((name) => {
       const img = new Image();
@@ -157,6 +191,9 @@ export class Game {
     this.level.towers.forEach((tower) => {
       tower.update();
     });
+    this.projectiles.forEach((projectile) => {
+      projectile.update();
+    });
     if (this.#health < 0) {
       if (confirm("Game Over! Play again?")) {
         window.location.reload();
@@ -175,6 +212,20 @@ export class Game {
     this.level.towers.forEach((tower) => {
       tower.render();
     });
+    this.projectiles.forEach((projectile) => {
+      projectile.render();
+    });
+    if (this.#health <= 0) {
+      this.ctx.save();
+      this.ctx.fillStyle = "red";
+      this.ctx.font = "30px Arial";
+      this.ctx.fillText(
+        "Game Over!",
+        this.canvas.width / 2 - 50,
+        this.canvas.height / 2
+      );
+      this.ctx.restore();
+    }
   }
 
   drawGrid(): void {
@@ -243,6 +294,13 @@ export class Game {
       );
       this.ctx.restore();
     }
+  }
+
+  convertGridPositionToCoordinates(gridPosition: GridPosition): Coordinates {
+    return {
+      x: gridPosition.col * this.squareSize + this.squareSize / 2,
+      y: gridPosition.row * this.squareSize + this.squareSize / 2,
+    };
   }
 
   get health(): number {
