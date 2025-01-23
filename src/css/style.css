@@ -23,3 +23,24 @@ body {
     margin-right: 1rem;
   }
 }
+
+#aside-right {
+  display: inline-block;
+
+  #towers-overview {
+    list-style: none;
+    padding: 0;
+    li,
+    img {
+      vertical-align: middle;
+    }
+    li {
+      display: flex;
+      flex-direction: row;
+    }
+    img {
+      height: 50px;
+      width: 50px;
+    }
+  }
+}
