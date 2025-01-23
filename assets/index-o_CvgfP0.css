@@ -1,0 +1,1 @@
+*{box-sizing:border-box}html,body{margin:0;padding:0;height:100%;width:100%}#toolbar-top{background-color:#f9f9f9;border-bottom:1px solid #e5e5e5;border-top:1px solid #e5e5e5;padding:10px 0;position:relative;display:flex;flex-direction:row}#toolbar-top .toolbar-item{margin-right:1rem}
