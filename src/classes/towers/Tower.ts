@@ -30,6 +30,9 @@ export default class Tower extends Entity {
       this.game.ctx.drawImage(image, x, y, squareSize, squareSize);
     } catch (e) {
       console.error(e);
+      if (this.game.debug) {
+        alert(`Error rendering tower ${image}: ${e}`);
+      }
     }
   }
 

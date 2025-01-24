@@ -139,6 +139,9 @@ export class Projectile extends Entity {
       );
     } catch (e) {
       console.log(e);
+      if (this.game.debug) {
+        alert(`Error rendering projectile ${this.getImage().src}: ${e}`);
+      }
     }
     ctx.restore();
   }
