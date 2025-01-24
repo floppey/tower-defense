@@ -1,5 +1,4 @@
 import { TowerType } from "../../types/types";
-import { Bullet } from "../projectiles/Bullet";
 import { Fireball } from "../projectiles/Fireball";
 import Tower from "./Tower";
 

@@ -19,7 +19,7 @@ import Tower from "./towers/Tower";
 
 export class Game {
   #health: number = 10;
-  #money: number = 10000;
+  #money: number = 100;
   #killCount = 0;
   debug: boolean = false;
   canvas: HTMLCanvasElement;
