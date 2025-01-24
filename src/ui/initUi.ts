@@ -1,5 +1,5 @@
 import { Game } from "../classes/Game";
-import { prices } from "../constants/prices";
+import { prices, towerTypes } from "../constants/towers";
 
 export const initUi = (game: Game) => {
   const toolbarTop = document.createElement("div");
@@ -15,7 +15,9 @@ export const initUi = (game: Game) => {
   toolbarTop.innerHTML = `
     <div class="toolbar-item">
       <span>🪙: </span>
-      <span id="money">100</span>
+      <span id="money" class="money">${game.money.toLocaleString(
+        "en-US"
+      )}</span>
     </div>
     <div class="toolbar-item">
       <span>❤️: </span>
@@ -43,42 +45,51 @@ export const initUi = (game: Game) => {
   toolbarTop.appendChild(automode);
   document.body.insertBefore(toolbarTop, document.body.firstChild);
 
-  const asideRight = document.createElement("aside");
-  asideRight.id = "aside-right";
-  asideRight.innerHTML = `
-  <h2>Controls</h2>
-  <h3>Add a new tower</h3>
-  <p>Click an empty square to add a new simple tower tower to the map</p>
-  <h3>Upgrade a tower</h3>
-  <p>Click a tower. If you have enough gold, the tower will be upgraded.</p>
-  <h3>Towers</h3>
-  <ul id="towers-overview">
-  <li>
-  <img src="assets/tower-basic.png" alt="basic tower" /><span><strong>Basic tower</strong>. Cost: ${
-    prices.newTower
-  } 🪙<br/> Single target, short range, low damage, slow attackspeed, slow projectiles.</span>
-  </li>
-  <li>
-  <img src="assets/tower-arrow.png" alt="arrow tower" /><span><strong>Arrow tower</strong>. Cost: ${
-    prices.arrowTower
-  } 🪙<br/> Single target, medium range, low damage, medium attackspeed, medium speed projectiles.</span>
-  </li>
-  <li>
-  <img src="assets/tower-cannon.png" alt="cannon tower" /> <span> <strong>Cannon tower</strong>. Cost: ${
-    prices.cannonTower
-  } 🪙<br/> Splash damage, short range, high damage, very slow attackspeed, very slow projectiles.</span>
-  </li>
-  <!--
-  <li>
-   <img src="assets/tower-mage.png" alt="mage tower" /><span><strong>Mage tower</strong>. Cost: 300 🪙<br/> Single target, long range, medium damage, slow attackspeed, slow projectiles. </span>
-  </li>
-  -->
-  <li>
-  <img src="assets/tower-fire.png" alt="fire tower" /><span><strong>Fire tower</strong>. Cost: ${prices.fireTower.toLocaleString(
-    "en-US"
-  )} 🪙<br/> Small splash damage, medium range, high damage, fast attackspeed, fast projectiles.</span>
-  </li>
-  </ul>
+  const toolbarBottom = document.createElement("div");
+  toolbarBottom.id = "toolbar-bottom";
+
+  Object.values(towerTypes).forEach((tower) => {
+    const towerButton = document.createElement("button");
+    towerButton.innerHTML = `
+    <img src="assets/tower-${tower}.png" alt="${tower} tower" />
+    <span>${tower} tower - <span class="price">${prices[tower].toLocaleString(
+      "en-US"
+    )}🪙</span></span>
+    `;
+    towerButton.addEventListener("click", () => {
+      game.newTower = tower;
+    });
+    toolbarBottom.appendChild(towerButton);
+  });
+
+  document.body.appendChild(toolbarBottom);
+
+  const infoPanel = document.createElement("div");
+  infoPanel.id = "info-panel";
+  infoPanel.innerHTML = `
+  <details>
+  <summary>How to play</summary>
+  <h2>Goal</h2>
+  <p>Defend your base from waves of monsters by building towers. The monsters move from the blue square(s) to the red square(s)</p>
+  <h2>Adding towers</h2>
+  <p>
+    Use the toolbar at the bottom to select a tower type. Click on an empty square on the map to add a tower.
+  </p>
+  <h2>Selling towers</h2>
+  <p>
+    Right-click on a tower to sell it for half the price.
+  </p>
+  <h2>Starting a wave</h2>
+  <p>
+    Click the "Start Wave" button to start a new wave of monsters.
+  </p>
+  <h2>Auto mode</h2>
+  <p>
+    When auto mode is enabled, the game will automatically start new waves when the previous wave is defeated.
+  </p>
+  
+  </details>
+  
   `;
-  document.body.appendChild(asideRight);
+  document.body.appendChild(infoPanel);
 };

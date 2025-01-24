@@ -3,12 +3,13 @@ import {
   START_CELL,
   END_CELL,
 } from "../constants/mapMatrixConstants";
-import { GridPosition } from "../types/types";
+import { spiralMap } from "../maps/spiralMap";
+import { GridPosition, Map } from "../types/types";
 import { Entity } from "./Entity";
 import { Level } from "./Level";
 
 export class MapMatrix extends Entity {
-  matrix: Record<number, Record<number, number[] | string>>;
+  matrix: Map;
   level: Level;
   totalDistance = 0;
 
@@ -36,22 +37,29 @@ export class MapMatrix extends Entity {
   }
 
   generateMapMatrix(): void {
-    this.level.startPositions.forEach((startPos) => {
-      let attempts = 0;
+    if (Math.random() > 0.5) {
+      this.level.startPositions = [{ col: 0, row: 1 }];
+      this.level.endPositions = [{ col: 8, row: 10 }];
+      this.totalDistance = 183;
+      this.matrix = spiralMap;
+    } else {
+      this.level.startPositions.forEach((startPos) => {
+        let attempts = 0;
 
-      do {
-        this.initMatrix();
-        this.totalDistance = this.buildPath(startPos.col, startPos.row, 1);
-        attempts++;
-      } while (
-        (this.totalDistance < this.level.minLength ||
-          this.totalDistance > this.level.maxLength) &&
-        attempts < 100
-      );
-      if (attempts >= 100) {
-        console.log("Failed to generate path");
-      }
-    });
+        do {
+          this.initMatrix();
+          this.totalDistance = this.buildPath(startPos.col, startPos.row, 1);
+          attempts++;
+        } while (
+          (this.totalDistance < this.level.minLength ||
+            this.totalDistance > this.level.maxLength) &&
+          attempts < 100
+        );
+        if (attempts >= 100) {
+          console.log("Failed to generate path");
+        }
+      });
+    }
   }
 
   /**
@@ -148,7 +156,9 @@ export class MapMatrix extends Entity {
     const intDistance = Math.ceil(distance);
     let position: GridPosition =
       intDistance < 0
-        ? this.level.startPositions[0]
+        ? this.level.startPositions[
+            Math.random() * this.level.startPositions.length
+          ]
         : this.level.endPositions[0];
     Object.keys(this.matrix).forEach((xKey) => {
       const col = Number(xKey);

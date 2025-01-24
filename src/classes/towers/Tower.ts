@@ -53,11 +53,16 @@ export default class Tower extends Entity {
     });
   }
 
-  attack() {
+  canAttack() {
     const currentTime = Date.now();
     const timeSinceLastAttack = currentTime - this.lastAttackTime;
+    return timeSinceLastAttack > 1000 / this.attackSpeed;
+  }
 
-    if (timeSinceLastAttack > 1000 / this.attackSpeed) {
+  attack() {
+    const currentTime = Date.now();
+
+    if (this.canAttack()) {
       const target = this.getTargetsInRange();
       if (target) {
         this.game.projectiles.push(

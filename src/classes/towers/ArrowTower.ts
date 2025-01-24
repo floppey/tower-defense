@@ -10,9 +10,8 @@ export class ArrowTower extends Tower {
 
   attack() {
     const currentTime = Date.now();
-    const timeSinceLastAttack = currentTime - this.lastAttackTime;
 
-    if (timeSinceLastAttack > 1000 / this.attackSpeed) {
+    if (this.canAttack()) {
       const target = this.getTargetsInRange();
       if (target) {
         this.game.projectiles.push(

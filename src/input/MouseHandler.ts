@@ -2,9 +2,10 @@ import { Game } from "../classes/Game";
 import { ArrowTower } from "../classes/towers/ArrowTower";
 import { CannonTower } from "../classes/towers/CannonTower";
 import { FireTower } from "../classes/towers/FireTower";
+import { IceTower } from "../classes/towers/IceTower";
 import Tower from "../classes/towers/Tower";
 import { TOWER_CELL, UNSET_CELL } from "../constants/mapMatrixConstants";
-import { prices } from "../constants/prices";
+import { prices, TowerClasses } from "../constants/towers";
 import { Coordinates, GridPosition } from "../types/types";
 
 export class MouseHandler {
@@ -39,54 +40,54 @@ export class MouseHandler {
     this.game.canvas.addEventListener("click", () => {
       this.handleClick();
     });
+
+    this.game.canvas.addEventListener("contextmenu", (event) => {
+      this.handleContextMenu(event);
+    });
   }
 
   handleClick() {
     const cell = this.getCellAtMousePosition();
-    if (this.game.level.mapMatrix.matrix[cell.col][cell.row] === UNSET_CELL) {
-      if (this.game.money >= prices.newTower) {
+    if (
+      this.game.newTower &&
+      this.game.level.mapMatrix.matrix[cell.col][cell.row] === UNSET_CELL
+    ) {
+      if (this.game.money >= prices[this.game.newTower]) {
         this.game.level.mapMatrix.matrix[cell.col][cell.row] = TOWER_CELL;
-        this.game.level.towers.push(new Tower(this.game, cell));
-        this.game.money -= prices.newTower;
+        this.game.level.towers.push(
+          new TowerClasses[this.game.newTower](this.game, cell)
+        );
+        this.game.money -= prices[this.game.newTower];
+        if (this.game.money < prices[this.game.newTower]) {
+          this.game.newTower = null;
+        }
       }
+    }
+  }
+
+  handleContextMenu(event: MouseEvent) {
+    event.preventDefault();
+    const cell = this.getCellAtMousePosition();
+    if (this.game.newTower) {
+      this.game.newTower = null;
     } else if (
       this.game.level.mapMatrix.matrix[cell.col][cell.row] === TOWER_CELL
     ) {
-      let towerToUpgrade = this.game.level.towers.find((tower) => {
-        return (
+      const tower = this.game.level.towers.find(
+        (tower) =>
           tower.gridPosition.col === cell.col &&
           tower.gridPosition.row === cell.row
-        );
-      });
-      if (towerToUpgrade) {
-        if (
-          towerToUpgrade.type === "basic" &&
-          this.game.money >= prices.arrowTower
-        ) {
-          this.game.level.towers = this.game.level.towers.filter((tower) => {
-            return tower.id !== towerToUpgrade.id;
-          });
-          this.game.level.towers.push(new ArrowTower(this.game, cell));
-          this.game.money -= prices.arrowTower;
-        } else if (
-          towerToUpgrade.type === "arrow" &&
-          this.game.money >= prices.cannonTower
-        ) {
-          this.game.level.towers = this.game.level.towers.filter((tower) => {
-            return tower.id !== towerToUpgrade.id;
-          });
-          this.game.level.towers.push(new CannonTower(this.game, cell));
-          this.game.money -= prices.cannonTower;
-        } else if (
-          towerToUpgrade.type === "cannon" &&
-          this.game.money >= prices.fireTower
-        ) {
-          this.game.level.towers = this.game.level.towers.filter((tower) => {
-            return tower.id !== towerToUpgrade.id;
-          });
-          this.game.level.towers.push(new FireTower(this.game, cell));
-          this.game.money -= prices.fireTower;
+      );
+      if (tower) {
+        this.game.paused = true;
+        if (confirm(`Sell for ${prices[tower.type] / 2} coins?`)) {
+          this.game.money += prices[tower.type] / 2;
+          this.game.level.towers = this.game.level.towers.filter(
+            (t) => t.id !== tower.id
+          );
+          this.game.level.mapMatrix.matrix[cell.col][cell.row] = UNSET_CELL;
         }
+        this.game.paused = false;
       }
     }
   }

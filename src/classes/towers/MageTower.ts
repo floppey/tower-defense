@@ -1,12 +1,12 @@
 import { TowerType } from "../../types/types";
-import { Bullet } from "../projectiles/Bullet";
+import { Crystal } from "../projectiles/Crystal";
 import Tower from "./Tower";
 
-export class CannonTower extends Tower {
-  range: number = 5;
-  damage: number = 125;
-  attackSpeed: number = 0.75;
-  type: TowerType = "cannon";
+export class MageTower extends Tower {
+  range: number = 10;
+  damage: number = 500;
+  attackSpeed: number = 2.5;
+  type: TowerType = "mage";
 
   attack() {
     const currentTime = Date.now();
@@ -15,9 +15,9 @@ export class CannonTower extends Tower {
       const target = this.getTargetsInRange();
       if (target?.gridPosition) {
         this.game.projectiles.push(
-          new Bullet({
+          new Crystal({
             game: this.game,
-            target: target.gridPosition,
+            target: target,
             position: this.game.convertGridPositionToCoordinates(
               this.gridPosition
             ),

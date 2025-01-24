@@ -1,4 +1,4 @@
-import { Coordinates, GridPosition } from "../../types/types";
+import { Coordinates, Debuff, GridPosition } from "../../types/types";
 import { getDistanceBetweenCoordinates } from "../../util/getDistanceBetweenCoordinates";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
@@ -16,6 +16,7 @@ export class Projectile extends Entity {
   width: number = 10;
   images: string[] = ["arrow"];
   splash: number | null = null;
+  debuffs: Debuff[] | null = null;
 
   constructor({
     game,
@@ -41,12 +42,16 @@ export class Projectile extends Entity {
   }
 
   impact() {
-    if (this.target instanceof Monster) {
-      this.target.takeDamage(this.damage);
+    const target = this.target;
+    if (target instanceof Monster) {
+      target.takeDamage(this.damage);
+      this.debuffs?.forEach((debuff) => {
+        target.addDebuff(debuff);
+      });
     }
     if (this.splash) {
       this.game.level.monsters.forEach((monster) => {
-        if (this.target instanceof Monster && monster.id === this.target.id) {
+        if (target instanceof Monster && monster.id === target.id) {
           return;
         }
         const monsterCanvasPosition = monster.getCanvasPosition();
@@ -59,6 +64,9 @@ export class Projectile extends Entity {
         );
         if (distance <= this.splash! * this.game.squareSize) {
           monster.takeDamage(this.damage);
+          this.debuffs?.forEach((debuff) => {
+            monster.addDebuff(debuff);
+          });
         }
       });
     }

@@ -1,4 +1,4 @@
-import { Coordinates, Direction, GridPosition } from "../types/types";
+import { Coordinates, Debuff, Direction, GridPosition } from "../types/types";
 import { Entity } from "./Entity";
 import { Game } from "./Game";
 
@@ -7,6 +7,7 @@ export default class Monster extends Entity {
   health: number;
   maxHealth: number;
   speed: number;
+  #baseSpeed: number;
   gridPosition: GridPosition | null;
   nextPosition: GridPosition | null;
   /** The distance the monster has traveled. This is used to keep track of how far along in the path it is */
@@ -14,29 +15,34 @@ export default class Monster extends Entity {
   damage: number;
   lastMoveTime: number = Date.now();
   direction: Direction;
-  reward: number = 10;
+  reward: number;
+  debuffs: Debuff[] = [];
 
   constructor({
     game,
     health,
     speed,
     damage,
+    reward,
   }: {
     game: Game;
     health: number;
     speed: number;
     damage: number;
+    reward: number;
   }) {
     super();
     this.game = game;
     this.health = health;
     this.maxHealth = health;
     this.speed = speed;
+    this.#baseSpeed = speed;
     this.distance = 0;
     this.gridPosition = this.game.level.mapMatrix.getPathPosition(0);
     this.nextPosition = this.game.level.mapMatrix.getPathPosition(0.5);
     this.direction = this.getDirection(this.nextPosition);
     this.damage = damage;
+    this.reward = reward;
   }
 
   getDirection(nextGridPosition: GridPosition): Direction {
@@ -55,7 +61,35 @@ export default class Monster extends Entity {
     return "none";
   }
 
-  move() {
+  addDebuff(debuff: Debuff) {
+    this.debuffs.push({
+      ...debuff,
+      duration: Date.now() + debuff.duration,
+    });
+  }
+
+  applyDebuffs() {
+    const currentTime = Date.now();
+    let speed = this.#baseSpeed;
+
+    this.debuffs = this.debuffs.filter((debuff) => {
+      if (currentTime > debuff.duration) {
+        return false;
+      }
+      return true;
+    });
+
+    this.debuffs.forEach((debuff) => {
+      if (debuff.type === "freeze") {
+        speed /= 2;
+      }
+    });
+
+    this.speed = Math.max(speed, 0.1);
+  }
+
+  update() {
+    this.applyDebuffs();
     const currentTime = Date.now();
     const timeSinceLastMove = currentTime - this.lastMoveTime;
     const distanceToTravel = (timeSinceLastMove / 1000) * this.speed;

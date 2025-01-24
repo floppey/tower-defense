@@ -3,8 +3,9 @@ import {
   START_CELL,
   UNSET_CELL,
 } from "../constants/mapMatrixConstants";
+import { TowerClasses } from "../constants/towers";
 import { MouseHandler } from "../input/MouseHandler";
-import { Coordinates, GridPosition } from "../types/types";
+import { Coordinates, GridPosition, TowerType } from "../types/types";
 import { initUi } from "../ui/initUi";
 import { updateHealth } from "../ui/updateHealth";
 import { updateKillCount } from "../ui/updateKillCount";
@@ -13,6 +14,7 @@ import { updateMonsterCount } from "../ui/updateMonsterCount";
 import { Level } from "./Level";
 import Monster from "./Monster";
 import { Projectile } from "./projectiles/Projectile";
+import Tower from "./towers/Tower";
 
 export class Game {
   #health: number = 10;
@@ -30,6 +32,8 @@ export class Game {
   images: Record<string, HTMLImageElement> = {};
   tempCounter = -1;
   projectiles: Projectile[] = [];
+  #newTower: Tower | null = null;
+  #paused = false;
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -44,14 +48,14 @@ export class Game {
       this,
       [
         {
-          col: 0,
-          row: 0,
+          col: Math.floor(Math.random() * this.gridWidth),
+          row: Math.floor(Math.random() * this.gridHeight),
         },
       ],
       [
         {
-          col: 20,
-          row: 20,
+          col: Math.floor(Math.random() * this.gridWidth),
+          row: Math.floor(Math.random() * this.gridHeight),
         },
       ],
       75,
@@ -141,6 +145,7 @@ export class Game {
         health: this.getHealth(),
         speed: this.getSpeed(),
         damage: 1,
+        reward: 10 + Math.floor(this.level.wave / 2),
       })
     );
     updateMonsterCount(this.level.monsters.length);
@@ -174,6 +179,7 @@ export class Game {
       "frost-11",
       "frost-12",
       "frost-13",
+      "crystal",
     ];
     imageNames.forEach((name) => {
       const img = new Image();
@@ -183,6 +189,9 @@ export class Game {
   }
 
   update() {
+    if (this.#paused) {
+      return;
+    }
     const monstersInEnd = this.level.monsters.filter(
       (monster) => monster.distance >= this.level.mapMatrix.totalDistance
     );
@@ -204,7 +213,7 @@ export class Game {
       this.health -= monster.damage;
     });
     this.level.monsters.forEach((monster) => {
-      monster.move();
+      monster.update();
     });
     this.level.towers.forEach((tower) => {
       tower.update();
@@ -221,7 +230,7 @@ export class Game {
       updateMonsterCount(this.level.monsters.length);
     }
     if (this.level.monsters.length === 0) {
-      console.log("Wave completed!");
+      console.log(`Wave ${this.level.wave} completed!`);
       if ((document.getElementById("automode") as HTMLInputElement)?.checked) {
         this.startWave();
       }
@@ -249,6 +258,27 @@ export class Game {
         this.canvas.width / 2,
         this.canvas.height / 1.5
       );
+      this.ctx.restore();
+    }
+    if (this.#newTower) {
+      this.ctx.save();
+      this.ctx.globalAlpha = 0.25;
+      // Draw a circle indicating the tower's range
+      this.ctx.beginPath();
+      this.ctx.arc(
+        this.hoveredCell!.col * this.squareSize + this.squareSize / 2,
+        this.hoveredCell!.row * this.squareSize + this.squareSize / 2,
+        this.#newTower.range * this.squareSize,
+        0,
+        2 * Math.PI
+      );
+      this.ctx.fillStyle = "purple";
+      this.ctx.globalAlpha = 0.5;
+      this.#newTower.gridPosition = this.hoveredCell!;
+      this.#newTower.render();
+
+      this.ctx.fill();
+
       this.ctx.restore();
     }
   }
@@ -305,6 +335,17 @@ export class Game {
         this.ctx.restore();
       });
     });
+    this.level.startPositions.forEach((startPosition) => {
+      this.ctx.save();
+      this.ctx.fillStyle = "blue";
+      this.ctx.fillRect(
+        startPosition.col * this.squareSize,
+        startPosition.row * this.squareSize,
+        this.squareSize,
+        this.squareSize
+      );
+      this.ctx.restore();
+    });
     if (this.hoveredCell) {
       this.ctx.save();
       // Draw a thick gold border around the hovered cell
@@ -350,5 +391,31 @@ export class Game {
   set killCount(value: number) {
     this.#killCount = value;
     updateKillCount(this.#killCount);
+  }
+
+  get newTower(): TowerType | null {
+    return this.#newTower?.type || null;
+  }
+  set newTower(value: TowerType | null) {
+    this.#newTower = value
+      ? new TowerClasses[value](this, this.hoveredCell!)
+      : null;
+  }
+
+  get paused(): boolean {
+    return this.#paused;
+  }
+  set paused(value: boolean) {
+    const now = Date.now();
+    this.level.towers.forEach((tower) => {
+      tower.lastAttackTime = now;
+    });
+    this.level.monsters.forEach((monster) => {
+      monster.lastMoveTime = now;
+    });
+    this.projectiles.forEach((projectile) => {
+      projectile.lastMoveTime = now;
+    });
+    this.#paused = value;
   }
 }
