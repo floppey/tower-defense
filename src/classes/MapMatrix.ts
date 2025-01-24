@@ -40,10 +40,10 @@ export class MapMatrix extends Entity {
 
     // Set the start and end positions
     this.level.startPositions?.forEach((pos) => {
-      this.matrix[pos.row][pos.col] = [0];
+      this.matrix[pos.col][pos.row] = [0];
     });
     this.level.endPositions?.forEach((pos) => {
-      this.matrix[pos.row][pos.col] = END_CELL;
+      this.matrix[pos.col][pos.row] = END_CELL;
     });
   }
 
@@ -159,9 +159,9 @@ export class MapMatrix extends Entity {
   getPathPosition(distance: number): GridPosition {
     const intDistance = Math.ceil(distance);
     let position: GridPosition =
-      intDistance < 0
+      intDistance <= 0
         ? this.level.startPositions[
-            Math.random() * this.level.startPositions.length
+            Math.floor(Math.random() * this.level.startPositions.length)
           ]
         : this.level.endPositions[0];
     Object.keys(this.matrix).forEach((xKey) => {

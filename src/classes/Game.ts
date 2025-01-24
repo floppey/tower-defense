@@ -95,6 +95,7 @@ export class Game {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has("debug")) {
       this.debug = true;
+      this.money = 10000;
     }
     initUi(this);
   }
@@ -184,6 +185,9 @@ export class Game {
       "tower-mage",
       "tower-ice",
       "tower-fire",
+      "tower-lightning",
+      "tower-lightning-2",
+      "tower-poison",
       "arrow",
       "bullet-1",
       "bullet-2",
@@ -205,6 +209,14 @@ export class Game {
       "frost-12",
       "frost-13",
       "crystal",
+      "poison-1",
+      "poison-2",
+      "poison-3",
+      "poison-4",
+      "poison-5",
+      "poison-6",
+      "poison-7",
+      "poison-8",
     ];
     imageNames.forEach((name) => {
       const img = new Image();
@@ -227,12 +239,14 @@ export class Game {
       this.money += monster.reward;
       this.killCount++;
     });
-    this.level.monsters = this.level.monsters.filter((monster) => {
-      return (
-        monster.isAlive() &&
-        monster.distance < this.level.mapMatrix.totalDistance
-      );
-    });
+    this.level.monsters = this.level.monsters
+      .filter((monster) => {
+        return (
+          monster.isAlive() &&
+          monster.distance < this.level.mapMatrix.totalDistance
+        );
+      })
+      .sort((a, b) => b.distance - a.distance);
     monstersInEnd.forEach((monster) => {
       console.log(`Monster reached the end, -${monster.damage} health`);
       this.health -= monster.damage;
@@ -458,7 +472,7 @@ export class Game {
       tower.lastAttackTime = now;
     });
     this.level.monsters.forEach((monster) => {
-      monster.lastMoveTime = now;
+      monster.lastUpdateTime = now;
     });
     this.projectiles.forEach((projectile) => {
       projectile.lastMoveTime = now;

@@ -12,7 +12,7 @@ export class IceTower extends Tower {
     const currentTime = Date.now();
 
     if (this.canAttack()) {
-      const target = this.getTargetsInRange();
+      const target = this.getTargetInRange();
       if (target?.gridPosition) {
         this.game.projectiles.push(
           new Snowball({

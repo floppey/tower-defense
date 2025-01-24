@@ -12,7 +12,7 @@ export class ArrowTower extends Tower {
     const currentTime = Date.now();
 
     if (this.canAttack()) {
-      const target = this.getTargetsInRange();
+      const target = this.getTargetInRange();
       if (target) {
         this.game.projectiles.push(
           new Arrow({

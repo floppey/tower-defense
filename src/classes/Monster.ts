@@ -13,7 +13,7 @@ export default class Monster extends Entity {
   /** The distance the monster has traveled. This is used to keep track of how far along in the path it is */
   distance: number;
   damage: number;
-  lastMoveTime: number = Date.now();
+  lastUpdateTime: number = Date.now();
   direction: Direction;
   reward: number;
   debuffs: Debuff[] = [];
@@ -79,9 +79,19 @@ export default class Monster extends Entity {
       return true;
     });
 
+    let hasAppliedPoison = false;
     this.debuffs.forEach((debuff) => {
+      // Halve the speed of the monster if it is frozen
       if (debuff.type === "freeze") {
         speed /= 2;
+      }
+      // Deal 5% of the monster's max health as damage every second if it is poisoned
+      else if (debuff.type === "poison" && !hasAppliedPoison) {
+        hasAppliedPoison = true;
+        const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
+        const poisonDamage =
+          (timeSinceLastUpdate / 1000) * (this.maxHealth * 0.05);
+        this.takeDamage(poisonDamage);
       }
     });
 
@@ -91,8 +101,8 @@ export default class Monster extends Entity {
   update() {
     this.applyDebuffs();
     const currentTime = Date.now();
-    const timeSinceLastMove = currentTime - this.lastMoveTime;
-    const distanceToTravel = (timeSinceLastMove / 1000) * this.speed;
+    const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
+    const distanceToTravel = (timeSinceLastUpdate / 1000) * this.speed;
     const newDistance = this.distance + distanceToTravel;
 
     if (Math.floor(newDistance) > Math.floor(this.distance)) {
@@ -109,7 +119,7 @@ export default class Monster extends Entity {
       this.direction = this.getDirection(this.nextPosition);
     }
     this.distance = newDistance;
-    this.lastMoveTime = currentTime;
+    this.lastUpdateTime = currentTime;
   }
 
   getCanvasPosition(): Coordinates | null {
@@ -153,9 +163,17 @@ export default class Monster extends Entity {
 
     ctx.fillStyle = "black";
     ctx.fillRect(x, y, monsterSize, monsterSize);
+    ctx.fillRect(x, y - 10, monsterSize, 5);
+    if (this.debuffs.some((debuff) => debuff.type === "freeze")) {
+      ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
+      ctx.fillRect(x, y, monsterSize, monsterSize);
+    }
+    if (this.debuffs.some((debuff) => debuff.type === "poison")) {
+      ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+      ctx.fillRect(x, y, monsterSize, monsterSize);
+    }
     // Draw health bar
     ctx.fillStyle = "red";
-    ctx.fillRect(x, y - 10, monsterSize, 5);
     ctx.fillStyle = "green";
     ctx.fillRect(x, y - 10, (monsterSize * this.health) / this.maxHealth, 5);
   }

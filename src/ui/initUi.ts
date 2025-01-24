@@ -48,19 +48,23 @@ export const initUi = (game: Game) => {
   const toolbarBottom = document.createElement("div");
   toolbarBottom.id = "toolbar-bottom";
 
-  Object.values(towerTypes).forEach((tower) => {
-    const towerButton = document.createElement("button");
-    towerButton.innerHTML = `
+  Object.values(towerTypes)
+    .sort((a, b) => {
+      return prices[a] - prices[b];
+    })
+    .forEach((tower) => {
+      const towerButton = document.createElement("button");
+      towerButton.innerHTML = `
     <img src="assets/tower-${tower}.png" alt="${tower} tower" />
     <span>${tower} tower - <span class="price">${prices[tower].toLocaleString(
-      "en-US"
-    )}🪙</span></span>
+        "en-US"
+      )}🪙</span></span>
     `;
-    towerButton.addEventListener("click", () => {
-      game.newTower = tower;
+      towerButton.addEventListener("click", () => {
+        game.newTower = tower;
+      });
+      toolbarBottom.appendChild(towerButton);
     });
-    toolbarBottom.appendChild(towerButton);
-  });
 
   document.body.appendChild(toolbarBottom);
 
