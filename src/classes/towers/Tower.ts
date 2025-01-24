@@ -26,8 +26,11 @@ export default class Tower extends Entity {
     const y = row * squareSize;
 
     const image = this.game.images[`tower-${this.type}`];
-
-    this.game.ctx.drawImage(image, x, y, squareSize, squareSize);
+    try {
+      this.game.ctx.drawImage(image, x, y, squareSize, squareSize);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   update() {

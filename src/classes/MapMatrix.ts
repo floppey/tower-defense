@@ -13,12 +13,23 @@ export class MapMatrix extends Entity {
   level: Level;
   totalDistance = 0;
 
-  constructor(level: Level) {
+  constructor(level: Level, map?: Map) {
     super();
     this.level = level;
     this.matrix = {};
+    if (map) {
+      this.matrix = map;
 
-    this.generateMapMatrix();
+      Object.values(map).forEach((col) => {
+        Object.values(col).forEach((cell) => {
+          if (Array.isArray(cell)) {
+            this.totalDistance = Math.max(...cell, this.totalDistance);
+          }
+        });
+      });
+    } else {
+      this.generateMapMatrix();
+    }
   }
 
   initMatrix(): void {
@@ -28,38 +39,31 @@ export class MapMatrix extends Entity {
     );
 
     // Set the start and end positions
-    this.level.startPositions.forEach((pos) => {
-      this.matrix[pos.col][pos.row] = [0];
+    this.level.startPositions?.forEach((pos) => {
+      this.matrix[pos.row][pos.col] = [0];
     });
-    this.level.endPositions.forEach((pos) => {
-      this.matrix[pos.col][pos.row] = END_CELL;
+    this.level.endPositions?.forEach((pos) => {
+      this.matrix[pos.row][pos.col] = END_CELL;
     });
   }
 
   generateMapMatrix(): void {
-    if (Math.random() > 0.5) {
-      this.level.startPositions = [{ col: 0, row: 1 }];
-      this.level.endPositions = [{ col: 8, row: 10 }];
-      this.totalDistance = 183;
-      this.matrix = spiralMap;
-    } else {
-      this.level.startPositions.forEach((startPos) => {
-        let attempts = 0;
+    this.level.startPositions?.forEach((startPos) => {
+      let attempts = 0;
 
-        do {
-          this.initMatrix();
-          this.totalDistance = this.buildPath(startPos.col, startPos.row, 1);
-          attempts++;
-        } while (
-          (this.totalDistance < this.level.minLength ||
-            this.totalDistance > this.level.maxLength) &&
-          attempts < 100
-        );
-        if (attempts >= 100) {
-          console.log("Failed to generate path");
-        }
-      });
-    }
+      do {
+        this.initMatrix();
+        this.totalDistance = this.buildPath(startPos.col, startPos.row, 1);
+        attempts++;
+      } while (
+        (this.totalDistance < this.level.minLength ||
+          this.totalDistance > this.level.maxLength) &&
+        attempts < 100
+      );
+      if (attempts >= 100) {
+        console.log("Failed to generate path");
+      }
+    });
   }
 
   /**

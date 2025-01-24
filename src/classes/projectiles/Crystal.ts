@@ -4,10 +4,10 @@ import Monster from "../Monster";
 import { Projectile } from "./Projectile";
 
 export class Crystal extends Projectile {
-  height: number = 20;
-  width: number = 40;
+  height: number = 15;
+  width: number = 30;
 
-  images = ["magic"];
+  images = ["crystal"];
 
   constructor({
     game,

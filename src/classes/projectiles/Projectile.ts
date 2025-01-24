@@ -129,14 +129,17 @@ export class Projectile extends Entity {
     ctx.save();
     ctx.translate(this.position.x, this.position.y);
     ctx.rotate(this.angle);
-
-    ctx.drawImage(
-      this.getImage(),
-      -this.width / 2,
-      -this.height / 2,
-      this.width,
-      this.height
-    );
+    try {
+      ctx.drawImage(
+        this.getImage(),
+        -this.width / 2,
+        -this.height / 2,
+        this.width,
+        this.height
+      );
+    } catch (e) {
+      console.log(e);
+    }
     ctx.restore();
   }
 }

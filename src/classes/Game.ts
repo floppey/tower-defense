@@ -5,6 +5,7 @@ import {
 } from "../constants/mapMatrixConstants";
 import { TowerClasses } from "../constants/towers";
 import { MouseHandler } from "../input/MouseHandler";
+import { spiralMap } from "../maps/spiralMap";
 import { Coordinates, GridPosition, TowerType } from "../types/types";
 import { initUi } from "../ui/initUi";
 import { updateHealth } from "../ui/updateHealth";
@@ -18,7 +19,7 @@ import Tower from "./towers/Tower";
 
 export class Game {
   #health: number = 10;
-  #money: number = 100;
+  #money: number = 10000;
   #killCount = 0;
   debug: boolean = false;
   canvas: HTMLCanvasElement;
@@ -44,24 +45,46 @@ export class Game {
     this.canvas.width = this.squareSize * this.gridWidth;
     this.canvas.height = this.squareSize * this.gridHeight;
     this.ctx = ctx;
-    this.level = new Level(
-      this,
-      [
-        {
-          col: Math.floor(Math.random() * this.gridWidth),
-          row: Math.floor(Math.random() * this.gridHeight),
-        },
-      ],
-      [
-        {
-          col: Math.floor(Math.random() * this.gridWidth),
-          row: Math.floor(Math.random() * this.gridHeight),
-        },
-      ],
-      75,
-      150,
-      2
-    );
+    if (Math.random() > 0.5) {
+      this.level = new Level({
+        game: this,
+        endPositions: [
+          {
+            col: 8,
+            row: 10,
+          },
+        ],
+        startPositions: [
+          {
+            col: 0,
+            row: 1,
+          },
+        ],
+        maxLength: 200,
+        maxRepeatSquares: 1,
+        minLength: 100,
+        map: spiralMap,
+      });
+    } else {
+      this.level = new Level({
+        game: this,
+        endPositions: [
+          {
+            col: Math.floor((Math.random() * this.gridHeight) / 2),
+            row: Math.floor((Math.random() * this.gridWidth) / 2),
+          },
+        ],
+        startPositions: [
+          {
+            col: Math.floor(((Math.random() + 0.5) * this.gridHeight) / 2),
+            row: Math.floor(((Math.random() + 0.5) * this.gridWidth) / 2),
+          },
+        ],
+        maxLength: 250,
+        maxRepeatSquares: 3,
+        minLength: 100,
+      });
+    }
 
     document.body.appendChild(this.canvas);
     this.mouseHandler = new MouseHandler(this);
@@ -300,12 +323,14 @@ export class Game {
           if (cell === START_CELL) {
             this.ctx.fillStyle = "blue";
           } else if (cell === END_CELL) {
-            this.ctx.fillStyle = "red";
+            this.ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
           } else if (cell === UNSET_CELL) {
             this.ctx.fillStyle = "green";
           } else {
             this.ctx.fillStyle = "green";
           }
+        } else if (Array.isArray(cell) && cell.includes(0)) {
+          this.ctx.fillStyle = "blue";
         } else if (Array.isArray(cell) && cell.length > 0) {
           this.ctx.fillStyle = "rgb(200, 200, 200)";
         }
@@ -315,15 +340,38 @@ export class Game {
           this.squareSize,
           this.squareSize
         );
-        if (this.debug && Array.isArray(cell) && cell.length > 0) {
+        if (this.debug) {
+          this.ctx.save();
           this.ctx.fillStyle = "black";
           this.ctx.font = "12px Arial";
+          if (Array.isArray(cell) && cell.length > 0) {
+            this.ctx.fillText(
+              cell.toString(),
+              x * this.squareSize + 5,
+              y * this.squareSize + 15
+            );
+          } else if (cell === START_CELL) {
+            this.ctx.fillText(
+              START_CELL,
+              x * this.squareSize + 5,
+              y * this.squareSize + 15
+            );
+          } else if (cell === END_CELL) {
+            this.ctx.fillText(
+              END_CELL,
+              x * this.squareSize + 5,
+              y * this.squareSize + 15
+            );
+          }
+          this.ctx.font = "10px Arial";
           this.ctx.fillText(
-            cell.toString(),
-            x * this.squareSize + 5,
-            y * this.squareSize + 15
+            `${x},${y}`,
+            x * this.squareSize + 20,
+            y * this.squareSize + 40
           );
+          this.ctx.restore();
         }
+
         this.ctx.strokeStyle = "lightgray";
         this.ctx.strokeRect(
           x * this.squareSize,
@@ -335,17 +383,7 @@ export class Game {
         this.ctx.restore();
       });
     });
-    this.level.startPositions.forEach((startPosition) => {
-      this.ctx.save();
-      this.ctx.fillStyle = "blue";
-      this.ctx.fillRect(
-        startPosition.col * this.squareSize,
-        startPosition.row * this.squareSize,
-        this.squareSize,
-        this.squareSize
-      );
-      this.ctx.restore();
-    });
+
     if (this.hoveredCell) {
       this.ctx.save();
       // Draw a thick gold border around the hovered cell
