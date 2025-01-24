@@ -286,14 +286,14 @@ export class Game {
         );
         this.ctx.restore();
       }
-      if (this.#newTower) {
+      if (this.#newTower && this.hoveredCell) {
         this.ctx.save();
         this.ctx.globalAlpha = 0.25;
         // Draw a circle indicating the tower's range
         this.ctx.beginPath();
         this.ctx.arc(
-          this.hoveredCell!.col * this.squareSize + this.squareSize / 2,
-          this.hoveredCell!.row * this.squareSize + this.squareSize / 2,
+          this.hoveredCell.col * this.squareSize + this.squareSize / 2,
+          this.hoveredCell.row * this.squareSize + this.squareSize / 2,
           this.#newTower.range * this.squareSize,
           0,
           2 * Math.PI

@@ -11,7 +11,7 @@ export const prices: Record<TowerType, number> = {
   arrow: 100,
   cannon: 200,
   fire: 1000,
-  ice: 500,
+  ice: 450,
   mage: 7500,
 } as const;
 
