@@ -263,48 +263,55 @@ export class Game {
   }
 
   render() {
-    this.drawGrid();
-    this.level.monsters.forEach((monster) => {
-      monster.render();
-    });
-    this.level.towers.forEach((tower) => {
-      tower.render();
-    });
-    this.projectiles.forEach((projectile) => {
-      projectile.render();
-    });
-    if (this.#health <= 0) {
-      this.ctx.save();
-      this.ctx.fillStyle = "red";
-      this.ctx.font = "30px Arial";
-      this.ctx.textAlign = "center";
-      this.ctx.fillText(
-        "Game Over!",
-        this.canvas.width / 2,
-        this.canvas.height / 1.5
-      );
-      this.ctx.restore();
-    }
-    if (this.#newTower) {
-      this.ctx.save();
-      this.ctx.globalAlpha = 0.25;
-      // Draw a circle indicating the tower's range
-      this.ctx.beginPath();
-      this.ctx.arc(
-        this.hoveredCell!.col * this.squareSize + this.squareSize / 2,
-        this.hoveredCell!.row * this.squareSize + this.squareSize / 2,
-        this.#newTower.range * this.squareSize,
-        0,
-        2 * Math.PI
-      );
-      this.ctx.fillStyle = "purple";
-      this.ctx.globalAlpha = 0.5;
-      this.#newTower.gridPosition = this.hoveredCell!;
-      this.#newTower.render();
+    try {
+      this.drawGrid();
+      this.level.monsters.forEach((monster) => {
+        monster.render();
+      });
+      this.level.towers.forEach((tower) => {
+        tower.render();
+      });
+      this.projectiles.forEach((projectile) => {
+        projectile.render();
+      });
+      if (this.#health <= 0) {
+        this.ctx.save();
+        this.ctx.fillStyle = "red";
+        this.ctx.font = "30px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText(
+          "Game Over!",
+          this.canvas.width / 2,
+          this.canvas.height / 1.5
+        );
+        this.ctx.restore();
+      }
+      if (this.#newTower) {
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.25;
+        // Draw a circle indicating the tower's range
+        this.ctx.beginPath();
+        this.ctx.arc(
+          this.hoveredCell!.col * this.squareSize + this.squareSize / 2,
+          this.hoveredCell!.row * this.squareSize + this.squareSize / 2,
+          this.#newTower.range * this.squareSize,
+          0,
+          2 * Math.PI
+        );
+        this.ctx.fillStyle = "purple";
+        this.ctx.globalAlpha = 0.5;
+        this.#newTower.gridPosition = this.hoveredCell!;
+        this.#newTower.render();
 
-      this.ctx.fill();
+        this.ctx.fill();
 
-      this.ctx.restore();
+        this.ctx.restore();
+      }
+    } catch (e) {
+      console.error(e);
+      if (this.debug) {
+        alert(`Error rendering game: ${e}`);
+      }
     }
   }
 
