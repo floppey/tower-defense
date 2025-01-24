@@ -42,10 +42,10 @@ export class Game {
     if (!ctx) {
       throw new Error("2d context not supported");
     }
-    this.canvas.width = this.squareSize * this.gridWidth;
-    this.canvas.height = this.squareSize * this.gridHeight;
     this.ctx = ctx;
     if (Math.random() > 0.5) {
+      this.gridHeight = 20;
+      this.gridWidth = 20;
       this.level = new Level({
         game: this,
         endPositions: [
@@ -85,6 +85,8 @@ export class Game {
         minLength: 100,
       });
     }
+    this.canvas.width = this.squareSize * this.gridWidth;
+    this.canvas.height = this.squareSize * this.gridHeight;
 
     document.body.appendChild(this.canvas);
     this.mouseHandler = new MouseHandler(this);
