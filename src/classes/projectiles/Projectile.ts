@@ -78,7 +78,9 @@ export class Projectile extends Entity {
   getImage() {
     // Cycle through images over 1 second
     const numberOfImages = this.images.length;
-    const imageIndex = Math.floor((Date.now() / 1000) % numberOfImages);
+    const imageIndex = Math.floor(
+      (Date.now() / this.game.gameSpeed) % numberOfImages
+    );
     const image = this.images[imageIndex];
 
     return this.game.images[image];
@@ -88,7 +90,8 @@ export class Projectile extends Entity {
     this.speed = this.speed * 1.05;
     const currentTime = Date.now();
     const timeSinceLastMove = currentTime - this.lastMoveTime;
-    const distanceToTravel = (timeSinceLastMove / 1000) * this.speed;
+    const distanceToTravel =
+      (timeSinceLastMove / this.game.gameSpeed) * this.speed;
 
     let targetPosition: Coordinates;
     if (this.target instanceof Monster) {

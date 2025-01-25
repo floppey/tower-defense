@@ -23,7 +23,7 @@ export class lightning extends Projectile {
   }) {
     super({
       game,
-      speed: 1500,
+      speed: game.gameSpeed * 1.5,
       damage,
       target,
       position,

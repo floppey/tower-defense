@@ -23,7 +23,7 @@ export class Snowball extends Projectile {
     "frost-12",
     "frost-13",
   ];
-  debuffs = [{ type: debuffs.freeze, duration: 2000 }];
+  debuffs = [{ type: debuffs.freeze, duration: this.game.gameSpeed * 2 }];
 
   constructor({
     game,
@@ -38,7 +38,7 @@ export class Snowball extends Projectile {
   }) {
     super({
       game,
-      speed: 333,
+      speed: game.gameSpeed / 3,
       damage,
       target,
       position,

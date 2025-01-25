@@ -22,7 +22,7 @@ export class Fireball extends Projectile {
   }) {
     super({
       game,
-      speed: 500,
+      speed: game.gameSpeed / 2,
       damage,
       target,
       position,

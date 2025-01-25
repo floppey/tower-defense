@@ -31,7 +31,9 @@ export default class Tower extends Entity {
     }
     // Cycle through images over 1 second
     const numberOfImages = images.length;
-    const imageIndex = Math.floor((Date.now() / 1000) % numberOfImages);
+    const imageIndex = Math.floor(
+      (Date.now() / this.game.gameSpeed) % numberOfImages
+    );
     const image = images[imageIndex];
 
     return image;
@@ -91,7 +93,7 @@ export default class Tower extends Entity {
   canAttack() {
     const currentTime = Date.now();
     const timeSinceLastAttack = currentTime - this.lastAttackTime;
-    return timeSinceLastAttack > 1000 / this.attackSpeed;
+    return timeSinceLastAttack > this.game.gameSpeed / this.attackSpeed;
   }
 
   attack() {
@@ -108,7 +110,7 @@ export default class Tower extends Entity {
               this.gridPosition
             ),
             damage: this.damage,
-            speed: 250,
+            speed: this.game.gameSpeed / 4,
           })
         );
         this.lastAttackTime = currentTime;

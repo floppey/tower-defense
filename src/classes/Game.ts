@@ -35,6 +35,7 @@ export class Game {
   projectiles: Projectile[] = [];
   #newTower: Tower | null = null;
   #paused = false;
+  gameSpeed = 1000;
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -129,39 +130,22 @@ export class Game {
 
   getSpeed() {
     let speed = 1;
-    if (this.level.wave > 5) {
-      speed += (this.level.wave - 5) * 0.2;
+    if (this.level.wave > 3) {
+      speed += (this.level.wave - 3) * 0.2;
     }
-    if (this.level.wave > 10) {
-      speed += (this.level.wave - 10) * 0.2;
-    }
-    if (this.level.wave > 15) {
-      speed += (this.level.wave - 15) * 0.2;
-    }
-    if (this.level.wave > 20) {
-      speed += (this.level.wave - 20) * 0.2;
-    }
-    return speed;
+
+    return Math.min(speed, 10);
   }
 
   getHealth() {
     let health = 100;
-    if (this.level.wave > 3) {
-      health += (this.level.wave - 3) * 15;
+    const baseHealthIncrease = 15;
+    let healthIncrease = 0;
+    for (let i = 0; i < this.level.wave; i += 3) {
+      healthIncrease += baseHealthIncrease * (i / 3);
+      healthIncrease += Math.pow(i, 2);
     }
-    if (this.level.wave > 5) {
-      health += (this.level.wave - 5) * 10;
-    }
-    if (this.level.wave > 10) {
-      health += (this.level.wave - 10) * 25;
-    }
-    if (this.level.wave > 15) {
-      health += (this.level.wave - 15) * 50;
-    }
-    if (this.level.wave > 20) {
-      health += (this.level.wave - 20) * 100;
-    }
-    return health;
+    return Math.floor(health + healthIncrease);
   }
 
   spawnMonster() {

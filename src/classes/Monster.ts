@@ -90,19 +90,20 @@ export default class Monster extends Entity {
         hasAppliedPoison = true;
         const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
         const poisonDamage =
-          (timeSinceLastUpdate / 1000) * (this.maxHealth * 0.05);
+          (timeSinceLastUpdate / this.game.gameSpeed) * (this.maxHealth * 0.05);
         this.takeDamage(poisonDamage);
       }
     });
 
-    this.speed = Math.max(speed, 0.1);
+    this.speed = Math.max(speed, this.#baseSpeed / 5);
   }
 
   update() {
     this.applyDebuffs();
     const currentTime = Date.now();
     const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
-    const distanceToTravel = (timeSinceLastUpdate / 1000) * this.speed;
+    const distanceToTravel =
+      (timeSinceLastUpdate / this.game.gameSpeed) * this.speed;
     const newDistance = this.distance + distanceToTravel;
 
     if (Math.floor(newDistance) > Math.floor(this.distance)) {

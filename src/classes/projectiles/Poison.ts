@@ -17,7 +17,7 @@ export class Poison extends Projectile {
     "poison-7",
     "poison-8",
   ];
-  debuffs = [{ type: debuffs.poison, duration: 10000 }];
+  debuffs = [{ type: debuffs.poison, duration: this.game.gameSpeed * 10 }];
 
   constructor({
     game,
@@ -32,7 +32,7 @@ export class Poison extends Projectile {
   }) {
     super({
       game,
-      speed: 200,
+      speed: game.gameSpeed / 5,
       damage,
       target,
       position,

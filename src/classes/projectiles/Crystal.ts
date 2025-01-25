@@ -22,7 +22,7 @@ export class Crystal extends Projectile {
   }) {
     super({
       game,
-      speed: 800,
+      speed: (game.gameSpeed / 10) * 8,
       damage,
       target,
       position,

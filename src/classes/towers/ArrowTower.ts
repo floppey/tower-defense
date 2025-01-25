@@ -22,7 +22,7 @@ export class ArrowTower extends Tower {
               this.gridPosition
             ),
             damage: this.damage,
-            speed: 500,
+            speed: this.game.gameSpeed / 2,
           })
         );
         this.lastAttackTime = currentTime;

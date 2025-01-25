@@ -10,7 +10,7 @@ const renderLoop = async () => {
 const updateLoop = async () => {
   game.update();
   if (game.health >= 0) {
-    setTimeout(updateLoop, 1000 / 60);
+    setTimeout(updateLoop, game.gameSpeed / 60);
   }
 };
 

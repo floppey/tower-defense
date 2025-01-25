@@ -21,7 +21,7 @@ export class Bullet extends Projectile {
   }) {
     super({
       game,
-      speed: 100,
+      speed: game.gameSpeed / 10,
       damage,
       target,
       position,
