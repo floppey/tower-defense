@@ -113,7 +113,11 @@ export default class Tower extends Entity {
             speed: this.game.gameSpeed / 4,
           })
         );
-        this.lastAttackTime = currentTime;
+        // Add a random delay to the next attack
+        this.lastAttackTime =
+          currentTime +
+          (this.attackSpeed * (Math.random() * 0.025) - 0.0125) *
+            this.game.gameSpeed;
       }
     }
   }

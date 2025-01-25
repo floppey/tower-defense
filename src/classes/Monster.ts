@@ -89,8 +89,10 @@ export default class Monster extends Entity {
       else if (debuff.type === "poison" && !hasAppliedPoison) {
         hasAppliedPoison = true;
         const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
+        // Deal a maximum of 1000 damage per second
+        const maxDamage = Math.min(this.maxHealth * 0.05, 1000);
         const poisonDamage =
-          (timeSinceLastUpdate / this.game.gameSpeed) * (this.maxHealth * 0.05);
+          (timeSinceLastUpdate / this.game.gameSpeed) * maxDamage;
         this.takeDamage(poisonDamage);
       }
     });

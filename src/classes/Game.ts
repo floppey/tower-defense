@@ -115,6 +115,11 @@ export class Game {
     }
     this.level.wave++;
     this.tempCounter = 0;
+    console.log(
+      `Starting wave ${
+        this.level.wave
+      }. ${this.getNumberOfMonstersPerWave()} monsters with ${this.getHealth()} health and ${this.getSpeed()} speed`
+    );
     this.spawnMonsters();
   }
 
@@ -125,24 +130,24 @@ export class Game {
         this.tempCounter++;
         this.spawnMonsters();
       }
-    }, 500 / this.getSpeed());
+    }, this.gameSpeed / 2 / this.getSpeed());
   }
 
   getSpeed() {
     let speed = 1;
-    if (this.level.wave > 3) {
-      speed += (this.level.wave - 3) * 0.2;
+    if (this.level.wave > 2) {
+      speed += (this.level.wave - 2) * 0.4;
     }
 
-    return Math.min(speed, 10);
+    return Math.min(speed, 15);
   }
 
   getHealth() {
     let health = 100;
     const baseHealthIncrease = 15;
     let healthIncrease = 0;
-    for (let i = 0; i < this.level.wave; i += 3) {
-      healthIncrease += baseHealthIncrease * (i / 3);
+    for (let i = 0; i < this.level.wave; i += 2) {
+      healthIncrease += baseHealthIncrease * (i / 1.75);
       healthIncrease += Math.pow(i, 2);
     }
     return Math.floor(health + healthIncrease);
@@ -201,6 +206,8 @@ export class Game {
       "poison-6",
       "poison-7",
       "poison-8",
+      "lightning-1",
+      "lightning-2",
     ];
     imageNames.forEach((name) => {
       const img = new Image();
@@ -412,6 +419,20 @@ export class Game {
       x: gridPosition.col * this.squareSize + this.squareSize / 2,
       y: gridPosition.row * this.squareSize + this.squareSize / 2,
     };
+  }
+
+  upgradeTower(stat: string) {
+    switch (stat) {
+      case "damage":
+        console.log("TODO: Implement damage upgrade");
+        break;
+      case "range":
+        console.log("TODO: Implement range upgrade");
+        break;
+      case "speed":
+        console.log("TODO: Implement speed upgrade");
+        break;
+    }
   }
 
   get health(): number {

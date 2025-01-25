@@ -3,9 +3,9 @@ import { lightning } from "../projectiles/Lightning";
 import Tower from "./Tower";
 
 export class LightningTower extends Tower {
-  range: number = 7;
-  damage: number = 250;
-  attackSpeed: number = 1;
+  range: number = 5;
+  damage: number = 125;
+  attackSpeed: number = 2;
   type: TowerType = "lightning";
 
   attack() {

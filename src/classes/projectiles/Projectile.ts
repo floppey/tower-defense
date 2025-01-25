@@ -87,9 +87,10 @@ export class Projectile extends Entity {
   }
 
   update() {
-    this.speed = this.speed * 1.05;
     const currentTime = Date.now();
     const timeSinceLastMove = currentTime - this.lastMoveTime;
+    const updateFactor = timeSinceLastMove / this.game.gameSpeed;
+    this.speed = this.speed * (1 + 1 * updateFactor);
     const distanceToTravel =
       (timeSinceLastMove / this.game.gameSpeed) * this.speed;
 

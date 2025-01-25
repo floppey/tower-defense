@@ -6,7 +6,7 @@ import Tower from "./Tower";
 export class PoisonTower extends Tower {
   range: number = 2;
   damage: number = 0;
-  attackSpeed: number = 2;
+  attackSpeed: number = 1;
   type: TowerType = "poison";
   multiTarget = true;
 

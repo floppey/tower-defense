@@ -4,8 +4,8 @@ import Monster from "../Monster";
 import { Projectile } from "./Projectile";
 
 export class Crystal extends Projectile {
-  height: number = 15;
-  width: number = 30;
+  height: number = 12;
+  width: number = 20;
 
   images = ["crystal"];
 

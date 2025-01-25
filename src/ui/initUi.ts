@@ -43,6 +43,17 @@ export const initUi = (game: Game) => {
     <span>Auto mode</span>
   `;
   toolbarTop.appendChild(automode);
+  const speedLabel = document.createElement("span");
+  speedLabel.innerHTML = "Speed: ";
+  toolbarTop.appendChild(speedLabel);
+  [0.25, 0.5, 1, 2, 5].forEach((speed) => {
+    const speedButton = document.createElement("button");
+    speedButton.innerHTML = `x${speed}`;
+    speedButton.addEventListener("click", () => {
+      game.gameSpeed = 1000 / speed;
+    });
+    toolbarTop.appendChild(speedButton);
+  });
   document.body.insertBefore(toolbarTop, document.body.firstChild);
 
   const toolbarBottom = document.createElement("div");
@@ -96,4 +107,21 @@ export const initUi = (game: Game) => {
   
   `;
   document.body.appendChild(infoPanel);
+
+  const upgradeTower = document.createElement("div");
+  upgradeTower.id = "upgrade-tower";
+  upgradeTower.innerHTML = `
+  <h2>Upgrade Tower</h2>
+`;
+  upgradeTower.style.display = "none";
+  ["damage", "range", "speed"].forEach((stat) => {
+    const button = document.createElement("button");
+    button.innerHTML = `${stat}`;
+    button.addEventListener("click", () => {
+      game.upgradeTower(stat);
+    });
+    upgradeTower.appendChild(button);
+  });
+
+  document.body.appendChild(upgradeTower);
 };
