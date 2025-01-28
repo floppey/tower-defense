@@ -12,6 +12,7 @@ import { updateHealth } from "../ui/updateHealth";
 import { updateKillCount } from "../ui/updateKillCount";
 import { updateMoney } from "../ui/updateMoney";
 import { updateMonsterCount } from "../ui/updateMonsterCount";
+import BossMonster from "./BossMonster";
 import { Level } from "./Level";
 import Monster from "./Monster";
 import { Projectile } from "./projectiles/Projectile";
@@ -102,7 +103,14 @@ export class Game {
   }
 
   getNumberOfMonstersPerWave() {
+    if (this.isBossWave()) {
+      return 1;
+    }
     return 20 + (this.level.wave - 1) * 2;
+  }
+
+  isBossWave() {
+    return this.level.wave % 10 === 0;
   }
 
   startWave() {
@@ -116,7 +124,7 @@ export class Game {
     this.level.wave++;
     this.tempCounter = 0;
     console.log(
-      `Starting wave ${
+      `Starting ${this.isBossWave() ? "boss wave" : "wave"} ${
         this.level.wave
       }. ${this.getNumberOfMonstersPerWave()} monsters with ${this.getHealth()} health and ${this.getSpeed()} speed`
     );
@@ -150,17 +158,28 @@ export class Game {
       healthIncrease += baseHealthIncrease * (i / 1.75);
       healthIncrease += Math.pow(i, 2);
     }
+    if (this.isBossWave()) {
+      healthIncrease *= 15;
+    }
     return Math.floor(health + healthIncrease);
   }
 
+  getReward() {
+    if (this.isBossWave()) {
+      return Math.floor(1000 * (this.level.wave / 10));
+    }
+    return 10 + Math.floor(this.level.wave / 2);
+  }
+
   spawnMonster() {
+    const MonsterClass = this.isBossWave() ? BossMonster : Monster;
     this.level.monsters.push(
-      new Monster({
+      new MonsterClass({
         game: this,
         health: this.getHealth(),
         speed: this.getSpeed(),
-        damage: 1,
-        reward: 10 + Math.floor(this.level.wave / 2),
+        damage: this.isBossWave() ? 5 : 1,
+        reward: this.getReward(),
       })
     );
     updateMonsterCount(this.level.monsters.length);

@@ -17,6 +17,7 @@ export default class Monster extends Entity {
   direction: Direction;
   reward: number;
   debuffs: Debuff[] = [];
+  monsterSize: number;
 
   constructor({
     game,
@@ -43,6 +44,7 @@ export default class Monster extends Entity {
     this.direction = this.getDirection(this.nextPosition);
     this.damage = damage;
     this.reward = reward;
+    this.monsterSize = this.game.squareSize / 4;
   }
 
   getDirection(nextGridPosition: GridPosition): Direction {
@@ -132,25 +134,25 @@ export default class Monster extends Entity {
     const { row, col } = this.gridPosition;
     const partialDistance = this.distance % 1;
     const { squareSize } = this.game;
-    const monsterSize = squareSize / 4;
+
     let x = col * squareSize;
     let y = row * squareSize;
 
     if (this.direction === "up") {
-      x += squareSize / 2 - monsterSize / 2;
+      x += squareSize / 2 - this.monsterSize / 2;
       y += squareSize - partialDistance * squareSize;
     } else if (this.direction === "down") {
-      x += squareSize / 2 - monsterSize / 2;
+      x += squareSize / 2 - this.monsterSize / 2;
       y += partialDistance * squareSize;
     } else if (this.direction === "left") {
       x += squareSize - partialDistance * squareSize;
-      y += squareSize / 2 - monsterSize / 2;
+      y += squareSize / 2 - this.monsterSize / 2;
     } else if (this.direction === "right") {
       x += partialDistance * squareSize;
-      y += squareSize / 2 - monsterSize / 2;
+      y += squareSize / 2 - this.monsterSize / 2;
     } else if (this.direction === "none") {
-      x += squareSize / 2 - monsterSize / 2;
-      y += squareSize / 2 - monsterSize / 2;
+      x += squareSize / 2 - this.monsterSize / 2;
+      y += squareSize / 2 - this.monsterSize / 2;
     }
     return { x, y };
   }
@@ -160,25 +162,29 @@ export default class Monster extends Entity {
     if (!coords) {
       return;
     }
-    const { squareSize, ctx } = this.game;
-    const monsterSize = squareSize / 3;
+    const { ctx } = this.game;
     const { x, y } = coords;
 
     ctx.fillStyle = "black";
-    ctx.fillRect(x, y, monsterSize, monsterSize);
-    ctx.fillRect(x, y - 10, monsterSize, 5);
+    ctx.fillRect(x, y, this.monsterSize, this.monsterSize);
+    ctx.fillRect(x, y - 10, this.monsterSize, 5);
     if (this.debuffs.some((debuff) => debuff.type === "freeze")) {
       ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
-      ctx.fillRect(x, y, monsterSize, monsterSize);
+      ctx.fillRect(x, y, this.monsterSize, this.monsterSize);
     }
     if (this.debuffs.some((debuff) => debuff.type === "poison")) {
       ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
-      ctx.fillRect(x, y, monsterSize, monsterSize);
+      ctx.fillRect(x, y, this.monsterSize, this.monsterSize);
     }
     // Draw health bar
     ctx.fillStyle = "red";
     ctx.fillStyle = "green";
-    ctx.fillRect(x, y - 10, (monsterSize * this.health) / this.maxHealth, 5);
+    ctx.fillRect(
+      x,
+      y - 10,
+      (this.monsterSize * this.health) / this.maxHealth,
+      5
+    );
   }
 
   takeDamage(amount: number) {
