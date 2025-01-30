@@ -1,3 +1,4 @@
+import { ImageName } from "../../constants/images";
 import { Coordinates, Debuff, GridPosition } from "../../types/types";
 import { getDistanceBetweenCoordinates } from "../../util/getDistanceBetweenCoordinates";
 import { Entity } from "../Entity";
@@ -14,7 +15,7 @@ export class Projectile extends Entity {
   angle: number;
   height: number = 10;
   width: number = 10;
-  images: string[] = ["arrow"];
+  images: ImageName[] = ["arrow"];
   splash: number | null = null;
   debuffs: Debuff[] | null = null;
 
