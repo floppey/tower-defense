@@ -1,7 +1,7 @@
 import { Coordinates } from "../../types/types";
 import { getDistanceBetweenCoordinates } from "../../util/getDistanceBetweenCoordinates";
 import { Game } from "../Game";
-import Monster from "../Monster";
+import Monster from "../monsters/Monster";
 import { Projectile } from "./Projectile";
 
 export class lightning extends Projectile {

@@ -1,5 +1,5 @@
 import { TowerType } from "../../types/types";
-import Monster from "../Monster";
+import Monster from "../monsters/Monster";
 import { Poison } from "../projectiles/Poison";
 import Tower from "./Tower";
 

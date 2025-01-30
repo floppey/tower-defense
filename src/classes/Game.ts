@@ -12,11 +12,13 @@ import { updateHealth } from "../ui/updateHealth";
 import { updateKillCount } from "../ui/updateKillCount";
 import { updateMoney } from "../ui/updateMoney";
 import { updateMonsterCount } from "../ui/updateMonsterCount";
-import BossMonster from "./BossMonster";
+import BossMonster from "./monsters/BossMonster";
 import { Level } from "./Level";
-import Monster from "./Monster";
+import Monster from "./monsters/Monster";
 import { Projectile } from "./projectiles/Projectile";
 import Tower from "./towers/Tower";
+import { ImageName, imageNames } from "../constants/images";
+import { MonsterType, monsterTypes } from "../constants/monsters";
 
 export class Game {
   #health: number = 10;
@@ -31,12 +33,14 @@ export class Game {
   level: Level;
   mouseHandler: MouseHandler;
   hoveredCell: GridPosition | null = null;
-  images: Record<string, HTMLImageElement> = {};
+  /* @ts-expect-error Images will be loaded in the constructor */
+  images: Record<ImageName, HTMLImageElement> = {};
   tempCounter = -1;
   projectiles: Projectile[] = [];
   #newTower: Tower | null = null;
   #paused = false;
   gameSpeed = 1000;
+  backgroundImage: HTMLCanvasElement | null = null;
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -173,6 +177,19 @@ export class Game {
 
   spawnMonster() {
     const MonsterClass = this.isBossWave() ? BossMonster : Monster;
+    let monsterType: MonsterType;
+    if (this.level.wave <= 10) {
+      monsterType = "plant";
+    } else if (this.level.wave <= 20) {
+      monsterType = "skeleton";
+    } else if (this.level.wave <= 30) {
+      monsterType = "orcWarrior";
+    } else if (this.level.wave <= 40) {
+      monsterType = "fireSpirit";
+    } else {
+      monsterType =
+        monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
+    }
     this.level.monsters.push(
       new MonsterClass({
         game: this,
@@ -180,54 +197,13 @@ export class Game {
         speed: this.getSpeed(),
         damage: this.isBossWave() ? 5 : 1,
         reward: this.getReward(),
+        type: monsterType,
       })
     );
     updateMonsterCount(this.level.monsters.length);
   }
 
   loadImages() {
-    const imageNames = [
-      "tower-basic",
-      "tower-arrow",
-      "tower-cannon",
-      "tower-mage",
-      "tower-ice",
-      "tower-fire",
-      "tower-lightning",
-      "tower-lightning-2",
-      "tower-poison",
-      "arrow",
-      "bullet-1",
-      "bullet-2",
-      "bullet-3",
-      "bullet-4",
-      "fire-1",
-      "fire-2",
-      "frost-1",
-      "frost-2",
-      "frost-3",
-      "frost-4",
-      "frost-5",
-      "frost-6",
-      "frost-7",
-      "frost-8",
-      "frost-9",
-      "frost-10",
-      "frost-11",
-      "frost-12",
-      "frost-13",
-      "crystal",
-      "poison-1",
-      "poison-2",
-      "poison-3",
-      "poison-4",
-      "poison-5",
-      "poison-6",
-      "poison-7",
-      "poison-8",
-      "lightning-1",
-      "lightning-2",
-    ];
     imageNames.forEach((name) => {
       const img = new Image();
       img.src = `./assets/${name}.png`;
@@ -340,82 +316,102 @@ export class Game {
   }
 
   drawGrid(): void {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (!this.backgroundImage) {
+      const offscreenCanvas = document.createElement("canvas");
+      offscreenCanvas.width = this.canvas.width;
+      offscreenCanvas.height = this.canvas.height;
+      const offscreenCtx = offscreenCanvas.getContext("2d");
+      if (!offscreenCtx) {
+        throw new Error("2d context not supported");
+      }
 
-    const { matrix } = this.level.mapMatrix;
+      offscreenCtx.clearRect(
+        0,
+        0,
+        offscreenCanvas.width,
+        offscreenCanvas.height
+      );
 
-    Object.keys(matrix).forEach((xKey) => {
-      const x = Number(xKey);
-      Object.keys(matrix[x]).forEach((yKey) => {
-        const y = Number(yKey);
-        const cell = matrix[x][y];
+      const { matrix } = this.level.mapMatrix;
 
-        this.ctx.save();
+      Object.keys(matrix).forEach((xKey) => {
+        const x = Number(xKey);
+        Object.keys(matrix[x]).forEach((yKey) => {
+          const y = Number(yKey);
+          const cell = matrix[x][y];
 
-        if (typeof cell === "string") {
-          if (cell === START_CELL) {
-            this.ctx.fillStyle = "blue";
-          } else if (cell === END_CELL) {
-            this.ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-          } else if (cell === UNSET_CELL) {
-            this.ctx.fillStyle = "green";
-          } else {
-            this.ctx.fillStyle = "green";
+          offscreenCtx.save();
+
+          if (typeof cell === "string") {
+            if (cell === START_CELL) {
+              offscreenCtx.fillStyle = "blue";
+            } else if (cell === END_CELL) {
+              offscreenCtx.fillStyle = "rgba(255, 0, 0, 0.5)";
+            } else if (cell === UNSET_CELL) {
+              offscreenCtx.fillStyle = "green";
+            } else {
+              offscreenCtx.fillStyle = "green";
+            }
+          } else if (Array.isArray(cell) && cell.includes(0)) {
+            offscreenCtx.fillStyle = "blue";
+          } else if (Array.isArray(cell) && cell.length > 0) {
+            offscreenCtx.fillStyle = "rgb(200, 200, 200)";
           }
-        } else if (Array.isArray(cell) && cell.includes(0)) {
-          this.ctx.fillStyle = "blue";
-        } else if (Array.isArray(cell) && cell.length > 0) {
-          this.ctx.fillStyle = "rgb(200, 200, 200)";
-        }
-        this.ctx.fillRect(
-          x * this.squareSize,
-          y * this.squareSize,
-          this.squareSize,
-          this.squareSize
-        );
-        if (this.debug) {
-          this.ctx.save();
-          this.ctx.fillStyle = "black";
-          this.ctx.font = "12px Arial";
-          if (Array.isArray(cell) && cell.length > 0) {
-            this.ctx.fillText(
-              cell.toString(),
-              x * this.squareSize + 5,
-              y * this.squareSize + 15
-            );
-          } else if (cell === START_CELL) {
-            this.ctx.fillText(
-              START_CELL,
-              x * this.squareSize + 5,
-              y * this.squareSize + 15
-            );
-          } else if (cell === END_CELL) {
-            this.ctx.fillText(
-              END_CELL,
-              x * this.squareSize + 5,
-              y * this.squareSize + 15
-            );
-          }
-          this.ctx.font = "10px Arial";
-          this.ctx.fillText(
-            `${x},${y}`,
-            x * this.squareSize + 20,
-            y * this.squareSize + 40
+          offscreenCtx.fillRect(
+            x * this.squareSize,
+            y * this.squareSize,
+            this.squareSize,
+            this.squareSize
           );
-          this.ctx.restore();
-        }
+          if (this.debug) {
+            offscreenCtx.save();
+            offscreenCtx.fillStyle = "black";
+            offscreenCtx.font = "12px Arial";
+            if (Array.isArray(cell) && cell.length > 0) {
+              offscreenCtx.fillText(
+                cell.toString(),
+                x * this.squareSize + 5,
+                y * this.squareSize + 15
+              );
+            } else if (cell === START_CELL) {
+              offscreenCtx.fillText(
+                START_CELL,
+                x * this.squareSize + 5,
+                y * this.squareSize + 15
+              );
+            } else if (cell === END_CELL) {
+              offscreenCtx.fillText(
+                END_CELL,
+                x * this.squareSize + 5,
+                y * this.squareSize + 15
+              );
+            }
+            offscreenCtx.font = "10px Arial";
+            offscreenCtx.fillText(
+              `${x},${y}`,
+              x * this.squareSize + 20,
+              y * this.squareSize + 40
+            );
+            offscreenCtx.restore();
+          }
 
-        this.ctx.strokeStyle = "lightgray";
-        this.ctx.strokeRect(
-          x * this.squareSize,
-          y * this.squareSize,
-          this.squareSize,
-          this.squareSize
-        );
+          offscreenCtx.strokeStyle = "lightgray";
+          offscreenCtx.strokeRect(
+            x * this.squareSize,
+            y * this.squareSize,
+            this.squareSize,
+            this.squareSize
+          );
 
-        this.ctx.restore();
+          offscreenCtx.restore();
+        });
       });
-    });
+
+      this.backgroundImage = offscreenCanvas;
+    }
+
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.drawImage(this.backgroundImage, 0, 0);
 
     if (this.hoveredCell) {
       this.ctx.save();

@@ -2,7 +2,7 @@ import { Coordinates, Debuff, GridPosition } from "../../types/types";
 import { getDistanceBetweenCoordinates } from "../../util/getDistanceBetweenCoordinates";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
-import Monster from "../Monster";
+import Monster from "../monsters/Monster";
 
 export class Projectile extends Entity {
   game: Game;

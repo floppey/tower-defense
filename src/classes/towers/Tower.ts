@@ -1,7 +1,7 @@
 import { GridPosition, TowerType } from "../../types/types";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
-import Monster from "../Monster";
+import Monster from "../monsters/Monster";
 import { Arrow } from "../projectiles/Arrow";
 
 export default class Tower extends Entity {

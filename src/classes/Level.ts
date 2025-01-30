@@ -3,7 +3,7 @@ import { updateWaveCount } from "../ui/updateWaveCount";
 import { Entity } from "./Entity";
 import { Game } from "./Game";
 import { MapMatrix } from "./MapMatrix";
-import Monster from "./Monster";
+import Monster from "./monsters/Monster";
 import Tower from "./towers/Tower";
 
 export class Level extends Entity {

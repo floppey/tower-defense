@@ -1,6 +1,21 @@
-import { Coordinates, Debuff, Direction, GridPosition } from "../types/types";
-import { Entity } from "./Entity";
-import { Game } from "./Game";
+import { MonsterType } from "../../constants/monsters";
+import {
+  Coordinates,
+  Debuff,
+  Direction,
+  GridPosition,
+} from "../../types/types";
+import { Entity } from "../Entity";
+import { Game } from "../Game";
+
+export interface MonsterConstructor {
+  game: Game;
+  health: number;
+  speed: number;
+  damage: number;
+  reward: number;
+  type: MonsterType;
+}
 
 export default class Monster extends Entity {
   game: Game;
@@ -18,6 +33,7 @@ export default class Monster extends Entity {
   reward: number;
   debuffs: Debuff[] = [];
   monsterSize: number;
+  type: MonsterType;
 
   constructor({
     game,
@@ -25,13 +41,8 @@ export default class Monster extends Entity {
     speed,
     damage,
     reward,
-  }: {
-    game: Game;
-    health: number;
-    speed: number;
-    damage: number;
-    reward: number;
-  }) {
+    type,
+  }: MonsterConstructor) {
     super();
     this.game = game;
     this.health = health;
@@ -44,7 +55,8 @@ export default class Monster extends Entity {
     this.direction = this.getDirection(this.nextPosition);
     this.damage = damage;
     this.reward = reward;
-    this.monsterSize = this.game.squareSize / 4;
+    this.monsterSize = this.game.squareSize / 1.5;
+    this.type = type;
   }
 
   getDirection(nextGridPosition: GridPosition): Direction {
@@ -165,26 +177,131 @@ export default class Monster extends Entity {
     const { ctx } = this.game;
     const { x, y } = coords;
 
-    ctx.fillStyle = "black";
-    ctx.fillRect(x, y, this.monsterSize, this.monsterSize);
-    ctx.fillRect(x, y - 10, this.monsterSize, 5);
-    if (this.debuffs.some((debuff) => debuff.type === "freeze")) {
-      ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
-      ctx.fillRect(x, y, this.monsterSize, this.monsterSize);
+    const sprite = this.getSprite();
+    const spriteSize = 128;
+    const { row, numberOfFrames } =
+      this.getWalkingAnimationRowAndNumberOfFrames();
+    const frame = Math.floor(this.distance * numberOfFrames) % numberOfFrames;
+    const spriteX = frame * spriteSize;
+    const spriteY = row * spriteSize;
+
+    ctx.save();
+
+    // Mirror the sprite if the monster is moving left
+    if (this.direction === "left") {
+      ctx.translate(x + this.monsterSize / 2, y);
+      ctx.scale(-1, 1);
+      ctx.translate(-x - this.monsterSize / 2, -y);
     }
-    if (this.debuffs.some((debuff) => debuff.type === "poison")) {
-      ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
-      ctx.fillRect(x, y, this.monsterSize, this.monsterSize);
-    }
+
+    ctx.drawImage(
+      sprite,
+      spriteX,
+      spriteY + 5, // +5 to offset the sprite
+      spriteSize,
+      spriteSize,
+      x,
+      y,
+      this.monsterSize,
+      this.monsterSize
+    );
+
+    ctx.restore();
+    ctx.save();
+
     // Draw health bar
     ctx.fillStyle = "red";
     ctx.fillStyle = "green";
     ctx.fillRect(
-      x,
-      y - 10,
-      (this.monsterSize * this.health) / this.maxHealth,
+      x + 10,
+      y,
+      ((this.monsterSize - 20) * this.health) / this.maxHealth,
       5
     );
+
+    ctx.restore();
+  }
+
+  getSprite(): HTMLImageElement {
+    switch (this.type) {
+      case "skeleton":
+        if (this.isFrozen()) {
+          return this.game.images["monsters/SkeletonFrozen"];
+        }
+        if (this.isPoisoned()) {
+          return this.game.images["monsters/SkeletonPoisoned"];
+        }
+        return this.game.images["monsters/Skeleton"];
+      case "plant":
+        if (this.isFrozen()) {
+          return this.game.images["monsters/PlantFrozen"];
+        }
+        if (this.isPoisoned()) {
+          return this.game.images["monsters/PlantPoisoned"];
+        }
+        return this.game.images["monsters/Plant"];
+      case "orcWarrior":
+        if (this.isFrozen()) {
+          return this.game.images["monsters/OrcWarriorFrozen"];
+        }
+        if (this.isPoisoned()) {
+          return this.game.images["monsters/OrcWarriorPoisoned"];
+        }
+        return this.game.images["monsters/OrcWarrior"];
+      case "fireSpirit":
+        if (this.isFrozen()) {
+          return this.game.images["monsters/FireSpiritFrozen"];
+        }
+        if (this.isPoisoned()) {
+          return this.game.images["monsters/FireSpiritPoisoned"];
+        }
+        return this.game.images["monsters/FireSpirit"];
+      default:
+        console.error("Invalid monster type", this.type);
+        return this.game.images["monsters/Skeleton"];
+    }
+  }
+
+  isFrozen(): boolean {
+    return this.debuffs.some((debuff) => debuff.type === "freeze");
+  }
+
+  isPoisoned(): boolean {
+    return this.debuffs.some((debuff) => debuff.type === "poison");
+  }
+
+  getWalkingAnimationRowAndNumberOfFrames(): {
+    numberOfFrames: number;
+    row: number;
+  } {
+    switch (this.type) {
+      case "skeleton":
+        return {
+          row: 1,
+          numberOfFrames: 8,
+        };
+      case "plant":
+        return {
+          row: 2,
+          numberOfFrames: 9,
+        };
+      case "orcWarrior":
+        return {
+          row: 9,
+          numberOfFrames: 7,
+        };
+      case "fireSpirit":
+        return {
+          row: 5,
+          numberOfFrames: 7,
+        };
+      default:
+        console.error("Invalid monster type", this.type);
+        return {
+          row: 0,
+          numberOfFrames: 0,
+        };
+    }
   }
 
   takeDamage(amount: number) {

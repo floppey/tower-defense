@@ -1,7 +1,7 @@
 import { debuffs } from "../../constants/debuffs";
 import { Coordinates } from "../../types/types";
 import { Game } from "../Game";
-import Monster from "../Monster";
+import Monster from "../monsters/Monster";
 import { Projectile } from "./Projectile";
 
 export class Snowball extends Projectile {
