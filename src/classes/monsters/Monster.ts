@@ -118,7 +118,7 @@ export default class Monster extends Entity {
       }
     });
 
-    this.speed = Math.max(speed, this.#baseSpeed / 5);
+    this.speed = Math.max(speed, this.#baseSpeed / 3);
   }
 
   update() {
