@@ -106,14 +106,13 @@ export default class Monster extends Entity {
       if (debuff.type === "freeze") {
         speed /= 2;
       }
-      // Deal 5% of the monster's max health as damage every second if it is poisoned
+      // Deal 0.5% of the monster's max health as damage every second if it is poisoned
       else if (debuff.type === "poison" && !hasAppliedPoison) {
         hasAppliedPoison = true;
         const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
-        // Deal a maximum of 1000 damage per second
-        const maxDamage = Math.min(this.maxHealth * 0.05, 1000);
+        const damagePersecond = this.maxHealth * 0.05;
         const poisonDamage =
-          (timeSinceLastUpdate / this.game.gameSpeed) * maxDamage;
+          (timeSinceLastUpdate / this.game.gameSpeed) * damagePersecond;
         this.takeDamage(poisonDamage);
       }
     });
