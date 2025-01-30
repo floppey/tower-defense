@@ -15,6 +15,7 @@ export interface MonsterConstructor {
   damage: number;
   reward: number;
   type: MonsterType;
+  path: string;
 }
 
 export default class Monster extends Entity {
@@ -34,6 +35,7 @@ export default class Monster extends Entity {
   debuffs: Debuff[] = [];
   monsterSize: number;
   type: MonsterType;
+  path: string;
 
   constructor({
     game,
@@ -42,6 +44,7 @@ export default class Monster extends Entity {
     damage,
     reward,
     type,
+    path,
   }: MonsterConstructor) {
     super();
     this.game = game;
@@ -50,8 +53,12 @@ export default class Monster extends Entity {
     this.speed = speed;
     this.#baseSpeed = speed;
     this.distance = 0;
-    this.gridPosition = this.game.level.mapMatrix.getPathPosition(0);
-    this.nextPosition = this.game.level.mapMatrix.getPathPosition(0.5);
+    this.path = path;
+    this.gridPosition = this.game.level.mapMatrix.getPathPosition(0, this.path);
+    this.nextPosition = this.game.level.mapMatrix.getPathPosition(
+      0.5,
+      this.path
+    );
     this.direction = this.getDirection(this.nextPosition);
     this.damage = damage;
     this.reward = reward;
@@ -124,8 +131,10 @@ export default class Monster extends Entity {
 
     if (Math.floor(newDistance) > Math.floor(this.distance)) {
       this.gridPosition = this.nextPosition;
-      this.nextPosition =
-        this.game.level.mapMatrix.getPathPosition(newDistance);
+      this.nextPosition = this.game.level.mapMatrix.getPathPosition(
+        newDistance,
+        this.path
+      );
     }
 
     if (

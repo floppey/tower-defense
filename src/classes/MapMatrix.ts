@@ -1,5 +1,5 @@
 import { UNSET_CELL, END_CELL } from "../constants/mapMatrixConstants";
-import { GridPosition, Map } from "../types/types";
+import { GridPosition, Map, Step } from "../types/types";
 import { Entity } from "./Entity";
 import { Level } from "./Level";
 
@@ -7,7 +7,7 @@ export class MapMatrix extends Entity {
   matrix: Map;
   level: Level;
   totalDistance = 0;
-  distanceToPositionMap: { [key: number]: GridPosition } = {};
+  distanceToPositionMap: { [key: string]: GridPosition } = {};
 
   constructor(level: Level, map?: Map) {
     super();
@@ -19,7 +19,10 @@ export class MapMatrix extends Entity {
       Object.values(map).forEach((col) => {
         Object.values(col).forEach((cell) => {
           if (Array.isArray(cell)) {
-            this.totalDistance = Math.max(...cell, this.totalDistance);
+            this.totalDistance = Math.max(
+              ...cell.map((c) => c.distance),
+              this.totalDistance
+            );
           }
         });
       });
@@ -35,8 +38,13 @@ export class MapMatrix extends Entity {
     );
 
     // Set the start and end positions
-    this.level.startPositions?.forEach((pos) => {
-      this.matrix[pos.col][pos.row] = [0];
+    this.level.startPositions?.forEach((pos, index) => {
+      this.matrix[pos.col][pos.row] = [
+        {
+          path: `${index}`,
+          distance: 0,
+        },
+      ];
     });
     this.level.endPositions?.forEach((pos) => {
       this.matrix[pos.col][pos.row] = END_CELL;
@@ -44,12 +52,17 @@ export class MapMatrix extends Entity {
   }
 
   generateMapMatrix(): void {
-    this.level.startPositions?.forEach((startPos) => {
+    this.level.startPositions?.forEach((startPos, index) => {
       let attempts = 0;
 
       do {
         this.initMatrix();
-        this.totalDistance = this.buildPath(startPos.col, startPos.row, 1);
+        this.totalDistance = this.buildPath(
+          startPos.col,
+          startPos.row,
+          1,
+          `${index}`
+        );
         attempts++;
       } while (
         (this.totalDistance < this.level.minLength ||
@@ -65,7 +78,12 @@ export class MapMatrix extends Entity {
   /**
    * Recursively and randomly build the path from the start position to the end position
    */
-  buildPath(col: number, row: number, pathNumber: number): number {
+  buildPath(
+    col: number,
+    row: number,
+    pathNumber: number,
+    pathName: string
+  ): number {
     const neighbors = this.getNeighbors(col, row);
 
     // Check if we've reached the end position
@@ -84,17 +102,21 @@ export class MapMatrix extends Entity {
     const randomNeighbor =
       validPathNeighbors[Math.floor(Math.random() * validPathNeighbors.length)];
     const matrixPosition = this.matrix[randomNeighbor.col][randomNeighbor.row];
+
     if (Array.isArray(matrixPosition)) {
-      matrixPosition.push(pathNumber);
+      matrixPosition.push({ path: pathName, distance: pathNumber });
     } else {
-      this.matrix[randomNeighbor.col][randomNeighbor.row] = [pathNumber];
+      this.matrix[randomNeighbor.col][randomNeighbor.row] = [
+        { path: pathName, distance: pathNumber },
+      ];
     }
 
     // Recursively build the path
     return this.buildPath(
       randomNeighbor.col,
       randomNeighbor.row,
-      pathNumber + 1
+      pathNumber + 1,
+      pathName
     );
   }
 
@@ -115,18 +137,28 @@ export class MapMatrix extends Entity {
     return neighbors;
   }
 
-  getCell(col: number, row: number): number[] | string {
+  getCell(col: number, row: number): string | Step[] {
     return this.matrix[col][row];
   }
 
-  canBePath(col: number, row: number, pathNumber: number): boolean {
+  canBePath(
+    col: number,
+    row: number,
+    pathNumber: number,
+    pathName?: string
+  ): boolean {
     const cell = this.getCell(col, row);
     // Check if the cell is not set, or if it's a path
     if (cell !== UNSET_CELL && Array.isArray(cell) === false) {
       return false;
     }
     // Check if the cell path is too close to the current position
-    if (Array.isArray(cell) && cell.some((pn) => pn > pathNumber - 10)) {
+    if (
+      Array.isArray(cell) &&
+      cell.some(
+        (step) => step.path === pathName && step.distance > pathNumber - 10
+      )
+    ) {
       return false;
     }
 
@@ -138,7 +170,13 @@ export class MapMatrix extends Entity {
         if (!Array.isArray(cell)) {
           return false;
         }
-        if (cell.some((pn) => pn > pathNumber - 10)) {
+
+        if (
+          Array.isArray(cell) &&
+          cell.some(
+            (step) => step.path === pathName && step.distance > pathNumber - 10
+          )
+        ) {
           return true;
         }
         return false;
@@ -152,10 +190,11 @@ export class MapMatrix extends Entity {
     return true;
   }
 
-  getPathPosition(distance: number): GridPosition {
+  getPathPosition(distance: number, path: string): GridPosition {
     const intDistance = Math.ceil(distance);
-    if (this.distanceToPositionMap[intDistance]) {
-      return this.distanceToPositionMap[intDistance];
+    const key = `${path}${intDistance}`;
+    if (this.distanceToPositionMap[key]) {
+      return this.distanceToPositionMap[key];
     }
     let position: GridPosition =
       intDistance <= 0
@@ -168,14 +207,18 @@ export class MapMatrix extends Entity {
       Object.keys(this.matrix[col]).forEach((yKey) => {
         const row = Number(yKey);
         const cell = this.matrix[col][row];
-        if (Array.isArray(cell) && cell.includes(intDistance)) {
+        if (
+          Array.isArray(cell) &&
+          cell.find(
+            (step) => step.distance === intDistance && step.path === path
+          )
+        ) {
           position = { row, col };
-
           return;
         }
       });
     });
-    this.distanceToPositionMap[intDistance] = position;
+    this.distanceToPositionMap[key] = position;
     return position;
   }
 }

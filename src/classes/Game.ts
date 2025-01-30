@@ -19,6 +19,7 @@ import { Projectile } from "./projectiles/Projectile";
 import Tower from "./towers/Tower";
 import { ImageName, imageNames } from "../constants/images";
 import { MonsterType, monsterTypes } from "../constants/monsters";
+import { burbenogMap } from "../maps/burbenogMap";
 
 export class Game {
   #health: number = 10;
@@ -41,6 +42,7 @@ export class Game {
   #paused = false;
   gameSpeed = 1000;
   backgroundImage: HTMLCanvasElement | null = null;
+  completedWaves: Record<number, boolean> = {};
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -50,6 +52,40 @@ export class Game {
     }
     this.ctx = ctx;
     if (Math.random() > 0.5) {
+      this.gridHeight = 30;
+      this.gridWidth = 30;
+      this.level = new Level({
+        game: this,
+        endPositions: [
+          {
+            col: 14,
+            row: 15,
+          },
+        ],
+        startPositions: [
+          {
+            col: 8,
+            row: 0,
+          },
+          {
+            col: 21,
+            row: 0,
+          },
+          {
+            col: 29,
+            row: 21,
+          },
+          {
+            col: 8,
+            row: 29,
+          },
+        ],
+        maxLength: 200,
+        maxRepeatSquares: 1,
+        minLength: 100,
+        map: burbenogMap,
+      });
+    } else if (Math.random() > 0.5) {
       this.gridHeight = 20;
       this.gridWidth = 20;
       this.level = new Level({
@@ -91,6 +127,7 @@ export class Game {
         minLength: 100,
       });
     }
+    this.#health = 10 * this.level.startPositions.length;
     this.canvas.width = this.squareSize * this.gridWidth;
     this.canvas.height = this.squareSize * this.gridHeight;
 
@@ -117,12 +154,17 @@ export class Game {
     return this.level.wave % 10 === 0;
   }
 
+  canStartWave() {
+    return (
+      this.#health > 0 &&
+      (this.tempCounter === this.getNumberOfMonstersPerWave() ||
+        this.tempCounter === -1)
+    );
+  }
+
   startWave() {
-    if (
-      this.#health <= 0 ||
-      (this.tempCounter < this.getNumberOfMonstersPerWave() &&
-        this.tempCounter !== -1)
-    ) {
+    if (!this.canStartWave()) {
+      console.log(this.tempCounter, this.getNumberOfMonstersPerWave());
       return;
     }
     this.level.wave++;
@@ -138,7 +180,9 @@ export class Game {
   spawnMonsters() {
     setTimeout(() => {
       if (this.tempCounter < this.getNumberOfMonstersPerWave()) {
-        this.spawnMonster();
+        this.level.startPositions.forEach((_, index) => {
+          this.spawnMonster(`${index}`);
+        });
         this.tempCounter++;
         this.spawnMonsters();
       }
@@ -148,22 +192,22 @@ export class Game {
   getSpeed() {
     let speed = 1;
     if (this.level.wave > 2) {
-      speed += (this.level.wave - 2) * 0.4;
+      speed += (this.level.wave - 2) * 0.1;
     }
 
-    return Math.min(speed, 15);
+    return Math.min(speed, 5);
   }
 
   getHealth() {
     let health = 100;
-    const baseHealthIncrease = 15;
+    const baseHealthIncrease = 25;
     let healthIncrease = 0;
-    for (let i = 0; i < this.level.wave; i += 2) {
+    for (let i = 0; i < this.level.wave; i += 1) {
       healthIncrease += baseHealthIncrease * (i / 1.75);
       healthIncrease += Math.pow(i, 2);
     }
     if (this.isBossWave()) {
-      healthIncrease *= 15;
+      healthIncrease *= 25;
     }
     return Math.floor(health + healthIncrease);
   }
@@ -175,7 +219,7 @@ export class Game {
     return 10 + Math.floor(this.level.wave / 2);
   }
 
-  spawnMonster() {
+  spawnMonster(path: string) {
     const MonsterClass = this.isBossWave() ? BossMonster : Monster;
     let monsterType: MonsterType;
     if (this.level.wave <= 10) {
@@ -198,6 +242,7 @@ export class Game {
         damage: this.isBossWave() ? 5 : 1,
         reward: this.getReward(),
         type: monsterType,
+        path,
       })
     );
     updateMonsterCount(this.level.monsters.length);
@@ -254,9 +299,20 @@ export class Game {
     if (deadMonsters.length > 0 || monstersInEnd.length > 0) {
       updateMonsterCount(this.level.monsters.length);
     }
-    if (this.level.monsters.length === 0) {
+    if (
+      this.canStartWave() &&
+      this.level.monsters.length === 0 &&
+      this.completedWaves[this.level.wave] !== true
+    ) {
+      this.completedWaves[this.level.wave] = true;
       console.log(`Wave ${this.level.wave} completed!`);
-      if ((document.getElementById("automode") as HTMLInputElement)?.checked) {
+      this.money += this.getReward() * 10;
+      const autoStart = (
+        document.getElementById("automode") as HTMLInputElement
+      )?.checked;
+      console.log("Auto start", autoStart);
+      if (autoStart) {
+        console.log("Auto starting next wave");
         this.startWave();
       }
     }
@@ -352,7 +408,10 @@ export class Game {
             } else {
               offscreenCtx.fillStyle = "green";
             }
-          } else if (Array.isArray(cell) && cell.includes(0)) {
+          } else if (
+            Array.isArray(cell) &&
+            cell.some((c) => c.distance === 0)
+          ) {
             offscreenCtx.fillStyle = "blue";
           } else if (Array.isArray(cell) && cell.length > 0) {
             offscreenCtx.fillStyle = "rgb(200, 200, 200)";
@@ -366,10 +425,10 @@ export class Game {
           if (this.debug) {
             offscreenCtx.save();
             offscreenCtx.fillStyle = "black";
-            offscreenCtx.font = "12px Arial";
+            offscreenCtx.font = "10px Arial";
             if (Array.isArray(cell) && cell.length > 0) {
               offscreenCtx.fillText(
-                cell.toString(),
+                `${cell.map((c) => c.path + "-" + c.distance).join(", ")}`,
                 x * this.squareSize + 5,
                 y * this.squareSize + 15
               );

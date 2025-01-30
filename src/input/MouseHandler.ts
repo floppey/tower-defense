@@ -1,9 +1,4 @@
 import { Game } from "../classes/Game";
-import { ArrowTower } from "../classes/towers/ArrowTower";
-import { CannonTower } from "../classes/towers/CannonTower";
-import { FireTower } from "../classes/towers/FireTower";
-import { IceTower } from "../classes/towers/IceTower";
-import Tower from "../classes/towers/Tower";
 import { TOWER_CELL, UNSET_CELL } from "../constants/mapMatrixConstants";
 import { prices, TowerClasses } from "../constants/towers";
 import { Coordinates, GridPosition } from "../types/types";

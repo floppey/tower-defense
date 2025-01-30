@@ -15,4 +15,8 @@ export interface Debuff {
   type: DebuffType;
   duration: number;
 }
-export type Map = Record<number, Record<number, number[] | string>>;
+export type Step = {
+  path: string;
+  distance: number;
+};
+export type Map = Record<number, Record<number, string | Step[]>>;

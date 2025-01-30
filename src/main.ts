@@ -1,18 +1,26 @@
 import { Game } from "./classes/Game";
+import { initMapBuilder } from "./mapBuilder/initMapBuilder";
 
-const game = new Game();
+// get query parameter
+const builder = new URLSearchParams(window.location.search).get("builder");
 
-const renderLoop = async () => {
-  game.render();
-  requestAnimationFrame(renderLoop);
-};
+if (builder) {
+  initMapBuilder();
+} else {
+  const game = new Game();
 
-const updateLoop = async () => {
-  game.update();
-  if (game.health >= 0) {
-    requestAnimationFrame(updateLoop);
-  }
-};
+  const renderLoop = async () => {
+    game.render();
+    requestAnimationFrame(renderLoop);
+  };
 
-renderLoop();
-updateLoop();
+  const updateLoop = async () => {
+    game.update();
+    if (game.health >= 0) {
+      requestAnimationFrame(updateLoop);
+    }
+  };
+
+  renderLoop();
+  updateLoop();
+}

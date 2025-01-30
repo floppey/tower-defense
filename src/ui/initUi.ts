@@ -21,7 +21,7 @@ export const initUi = (game: Game) => {
     </div>
     <div class="toolbar-item">
       <span>❤️: </span>
-      <span id="health">10</span>
+      <span id="health">${game.health}</span>
     </div>
     <div class="toolbar-item">
       <span>🌊: </span>
