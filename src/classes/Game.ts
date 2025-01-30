@@ -203,11 +203,11 @@ export class Game {
     const baseHealthIncrease = 25;
     let healthIncrease = 0;
     for (let i = 0; i < this.level.wave; i += 1) {
-      healthIncrease += baseHealthIncrease * (i / 1.75);
+      healthIncrease += baseHealthIncrease * (i * 2);
       healthIncrease += Math.pow(i, 2);
     }
     if (this.isBossWave()) {
-      healthIncrease *= 25;
+      healthIncrease *= 50;
     }
     return Math.floor(health + healthIncrease);
   }
