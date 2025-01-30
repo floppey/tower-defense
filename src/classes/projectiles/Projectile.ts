@@ -87,6 +87,13 @@ export class Projectile extends Entity {
     return this.game.images[image];
   }
 
+  getTargetPosition(): Coordinates {
+    if (this.target instanceof Monster) {
+      return this.target.getCanvasPosition()!;
+    }
+    return this.game.convertGridPositionToCoordinates(this.target);
+  }
+
   update() {
     const currentTime = Date.now();
     const timeSinceLastMove = currentTime - this.lastMoveTime;
@@ -95,12 +102,7 @@ export class Projectile extends Entity {
     const distanceToTravel =
       (timeSinceLastMove / this.game.gameSpeed) * this.speed;
 
-    let targetPosition: Coordinates;
-    if (this.target instanceof Monster) {
-      targetPosition = this.target.getCanvasPosition()!;
-    } else {
-      targetPosition = this.game.convertGridPositionToCoordinates(this.target);
-    }
+    const targetPosition = this.getTargetPosition();
 
     const distanceToTarget = Math.sqrt(
       Math.pow(targetPosition.x - this.position.x, 2) +
