@@ -7,7 +7,6 @@ export const initMapBuilder = () => {
   const height = Number(
     prompt("Enter the height of map (e.g. 15):")?.replace(/\D/g, "")
   );
-  console.log({ width, height });
 
   const mapBuilder = new MapBuilder(width, height);
 

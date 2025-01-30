@@ -164,7 +164,6 @@ export class Game {
 
   startWave() {
     if (!this.canStartWave()) {
-      console.log(this.tempCounter, this.getNumberOfMonstersPerWave());
       return;
     }
     this.level.wave++;
@@ -310,9 +309,7 @@ export class Game {
       const autoStart = (
         document.getElementById("automode") as HTMLInputElement
       )?.checked;
-      console.log("Auto start", autoStart);
       if (autoStart) {
-        console.log("Auto starting next wave");
         this.startWave();
       }
     }
