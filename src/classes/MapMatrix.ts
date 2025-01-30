@@ -1,9 +1,4 @@
-import {
-  UNSET_CELL,
-  START_CELL,
-  END_CELL,
-} from "../constants/mapMatrixConstants";
-import { spiralMap } from "../maps/spiralMap";
+import { UNSET_CELL, END_CELL } from "../constants/mapMatrixConstants";
 import { GridPosition, Map } from "../types/types";
 import { Entity } from "./Entity";
 import { Level } from "./Level";
@@ -12,6 +7,7 @@ export class MapMatrix extends Entity {
   matrix: Map;
   level: Level;
   totalDistance = 0;
+  distanceToPositionMap: { [key: number]: GridPosition } = {};
 
   constructor(level: Level, map?: Map) {
     super();
@@ -158,6 +154,9 @@ export class MapMatrix extends Entity {
 
   getPathPosition(distance: number): GridPosition {
     const intDistance = Math.ceil(distance);
+    if (this.distanceToPositionMap[intDistance]) {
+      return this.distanceToPositionMap[intDistance];
+    }
     let position: GridPosition =
       intDistance <= 0
         ? this.level.startPositions[
@@ -176,6 +175,7 @@ export class MapMatrix extends Entity {
         }
       });
     });
+    this.distanceToPositionMap[intDistance] = position;
     return position;
   }
 }
