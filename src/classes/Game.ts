@@ -204,7 +204,7 @@ export class Game {
     let healthIncrease = 0;
     for (let i = 0; i < this.level.wave; i += 1) {
       healthIncrease += baseHealthIncrease * (i * 2);
-      healthIncrease += Math.pow(i, 2);
+      healthIncrease += Math.pow(i, 2.5);
     }
     if (this.isBossWave()) {
       healthIncrease *= 50;
