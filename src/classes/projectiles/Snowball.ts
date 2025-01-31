@@ -1,4 +1,5 @@
 import { debuffs } from "../../constants/debuffs";
+import { ImageName } from "../../constants/images";
 import { Coordinates } from "../../types/types";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
@@ -8,7 +9,7 @@ export class Snowball extends Projectile {
   height: number = 25;
   width: number = 25;
   splash = 1;
-  images = [
+  images: ImageName[] = [
     "frost-1",
     "frost-2",
     "frost-3",

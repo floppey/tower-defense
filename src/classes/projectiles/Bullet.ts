@@ -1,3 +1,4 @@
+import { ImageName } from "../../constants/images";
 import { Coordinates, GridPosition } from "../../types/types";
 import { Game } from "../Game";
 import { Projectile } from "./Projectile";
@@ -6,7 +7,7 @@ export class Bullet extends Projectile {
   height: number = 10;
   width: number = 25;
   splash = 1.5;
-  images = ["bullet-1", "bullet-2", "bullet-3", "bullet-4"];
+  images: ImageName[] = ["bullet-1", "bullet-2", "bullet-3", "bullet-4"];
 
   constructor({
     game,

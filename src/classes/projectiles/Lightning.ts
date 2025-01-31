@@ -1,3 +1,4 @@
+import { ImageName } from "../../constants/images";
 import { Coordinates } from "../../types/types";
 import { getDistanceBetweenCoordinates } from "../../util/getDistanceBetweenCoordinates";
 import { Game } from "../Game";
@@ -8,7 +9,7 @@ export class lightning extends Projectile {
   height: number = 15;
   width: number = 30;
   previousTargets: number[] = [];
-  images = ["lightning-1", "lightning-2"];
+  images: ImageName[] = ["lightning-1", "lightning-2"];
 
   constructor({
     game,

@@ -5,7 +5,7 @@ import Tower from "./Tower";
 export class FireTower extends Tower {
   range: number = 5;
   damage: number = 500;
-  attackSpeed: number = 2.5;
+  attackSpeed: number = 1.5;
   type: TowerType = "fire";
 
   attack() {

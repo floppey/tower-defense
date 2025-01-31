@@ -5,7 +5,7 @@ import Tower from "./Tower";
 export class IceTower extends Tower {
   range: number = 5;
   damage: number = 50;
-  attackSpeed: number = 1.5;
+  attackSpeed: number = 1;
   type: TowerType = "ice";
 
   attack() {

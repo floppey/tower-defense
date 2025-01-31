@@ -8,8 +8,8 @@ export default class Tower extends Entity {
   game: Game;
   gridPosition: GridPosition;
   range: number = 4;
-  damage: number = 25;
-  attackSpeed: number = 1;
+  damage: number = 60;
+  attackSpeed: number = 0.5;
   lastAttackTime: number = Date.now();
   placed: boolean = false;
   type: TowerType = "basic";

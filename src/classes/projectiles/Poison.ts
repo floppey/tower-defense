@@ -1,4 +1,5 @@
 import { debuffs } from "../../constants/debuffs";
+import { ImageName } from "../../constants/images";
 import { Coordinates } from "../../types/types";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
@@ -7,7 +8,7 @@ import { Projectile } from "./Projectile";
 export class Poison extends Projectile {
   height: number = 25;
   width: number = 25;
-  images = [
+  images: ImageName[] = [
     "poison-1",
     "poison-2",
     "poison-3",
