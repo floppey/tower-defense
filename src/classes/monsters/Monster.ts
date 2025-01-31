@@ -110,7 +110,7 @@ export default class Monster extends Entity {
       else if (debuff.type === "poison" && !hasAppliedPoison) {
         hasAppliedPoison = true;
         const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
-        const damagePersecond = this.maxHealth * 0.05;
+        const damagePersecond = this.maxHealth * 0.005;
         const poisonDamage =
           (timeSinceLastUpdate / this.game.gameSpeed) * damagePersecond;
         this.takeDamage(poisonDamage);
