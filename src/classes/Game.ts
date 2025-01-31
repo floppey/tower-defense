@@ -305,7 +305,6 @@ export class Game {
     ) {
       this.completedWaves[this.level.wave] = true;
       console.log(`Wave ${this.level.wave} completed!`);
-      this.money += this.getReward() * 10;
       const autoStart = (
         document.getElementById("automode") as HTMLInputElement
       )?.checked;
