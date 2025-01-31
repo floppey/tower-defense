@@ -147,7 +147,10 @@ export class Game {
     if (this.isBossWave()) {
       return 1;
     }
-    return 20 + (this.level.wave - 1) * 2;
+    if (this.level.wave > 30) {
+      return 50;
+    }
+    return 20 + (this.level.wave - 1);
   }
 
   isBossWave() {
@@ -199,11 +202,11 @@ export class Game {
 
   getHealth() {
     let health = 100;
-    const baseHealthIncrease = 25;
+    const baseHealthIncrease = 50;
     let healthIncrease = 0;
     for (let i = 0; i < this.level.wave; i += 1) {
       healthIncrease += baseHealthIncrease * (i * 2);
-      healthIncrease += Math.pow(i, 2.5);
+      healthIncrease += Math.pow(i, 3);
     }
     if (this.isBossWave()) {
       healthIncrease *= 50;
