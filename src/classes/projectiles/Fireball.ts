@@ -9,12 +9,14 @@ export class Fireball extends Projectile {
 
   impact() {
     if (Math.random() > 0.8) {
+      const numberOfSeconds = 4;
       this.damage *= 2;
+
       this.debuffs = [
         {
           type: "burn",
-          duration: this.game.gameSpeed * 4,
-          data: { damage: this.damage / 2 },
+          duration: this.game.gameSpeed * numberOfSeconds,
+          data: { damage: this.damage / numberOfSeconds },
         },
       ];
     }
