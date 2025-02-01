@@ -50,7 +50,7 @@ export class MouseHandler {
       if (this.game.money >= prices[this.game.newTower]) {
         this.game.level.mapMatrix.matrix[cell.col][cell.row] = TOWER_CELL;
         this.game.level.towers.push(
-          new TowerClasses[this.game.newTower](this.game, cell)
+          new TowerClasses[this.game.newTower](this.game, cell, "basic")
         );
         this.game.money -= prices[this.game.newTower];
         if (this.game.money < prices[this.game.newTower]) {
