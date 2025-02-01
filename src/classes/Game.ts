@@ -3,10 +3,10 @@ import {
   START_CELL,
   UNSET_CELL,
 } from "../constants/mapMatrixConstants";
-import { TowerClasses } from "../constants/towers";
+import { TowerClasses, TowerType } from "../constants/towers";
 import { MouseHandler } from "../input/MouseHandler";
 import { spiralMap } from "../maps/spiralMap";
-import { Coordinates, GridPosition, TowerType } from "../types/types";
+import { Coordinates, GridPosition } from "../types/types";
 import { initUi } from "../ui/initUi";
 import { updateHealth } from "../ui/updateHealth";
 import { updateKillCount } from "../ui/updateKillCount";
@@ -537,7 +537,7 @@ export class Game {
   }
   set newTower(value: TowerType | null) {
     this.#newTower = value
-      ? new TowerClasses[value](this, this.hoveredCell!)
+      ? new TowerClasses[value](this, this.hoveredCell!, "basic")
       : null;
   }
 

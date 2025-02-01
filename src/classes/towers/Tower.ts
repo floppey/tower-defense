@@ -1,4 +1,5 @@
-import { GridPosition, TowerType } from "../../types/types";
+import { towerStats, TowerType } from "../../constants/towers";
+import { Debuff, GridPosition } from "../../types/types";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
@@ -14,11 +15,26 @@ export default class Tower extends Entity {
   placed: boolean = false;
   type: TowerType = "basic";
   multiTarget: boolean = false;
+  splash: number | null = null;
+  debuffs: Debuff[] | null = null;
 
-  constructor(game: Game, gridPosition: GridPosition) {
+  constructor(game: Game, gridPosition: GridPosition, type: TowerType) {
     super();
+    this.type = type;
+    const stats = towerStats[this.type];
     this.game = game;
     this.gridPosition = gridPosition;
+    this.range = stats.range;
+    this.damage = stats.damage;
+    this.attackSpeed = stats.attackSpeed;
+    this.splash = stats.splash;
+    if (stats.debuff)
+      this.debuffs = [
+        {
+          type: stats.debuff,
+          duration: (stats.debuffDuration ?? 1) * this.game.gameSpeed,
+        },
+      ];
   }
 
   getImage() {
@@ -111,6 +127,8 @@ export default class Tower extends Entity {
             ),
             damage: this.damage,
             speed: this.game.gameSpeed / 4,
+            debuffs: this.debuffs,
+            splash: this.splash,
           })
         );
         // Add a random delay to the next attack

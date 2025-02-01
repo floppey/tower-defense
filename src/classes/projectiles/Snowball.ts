@@ -1,14 +1,10 @@
 import { debuffs } from "../../constants/debuffs";
 import { ImageName } from "../../constants/images";
-import { Coordinates } from "../../types/types";
-import { Game } from "../Game";
-import Monster from "../monsters/Monster";
 import { Projectile } from "./Projectile";
 
 export class Snowball extends Projectile {
   height: number = 25;
   width: number = 25;
-  splash = 1;
   images: ImageName[] = [
     "frost-1",
     "frost-2",
@@ -25,24 +21,4 @@ export class Snowball extends Projectile {
     "frost-13",
   ];
   debuffs = [{ type: debuffs.freeze, duration: this.game.gameSpeed * 2 }];
-
-  constructor({
-    game,
-    target,
-    position,
-    damage,
-  }: {
-    game: Game;
-    target: Monster;
-    position: Coordinates;
-    damage: number;
-  }) {
-    super({
-      game,
-      speed: game.gameSpeed / 3,
-      damage,
-      target,
-      position,
-    });
-  }
 }

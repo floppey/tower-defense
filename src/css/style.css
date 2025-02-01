@@ -13,6 +13,11 @@ body {
 body {
   padding-top: 50px;
   padding-bottom: 150px;
+
+  > :last-child {
+    margin-bottom: 100px;
+    padding-bottom: 100px;
+  }
 }
 
 #toolbar-top {
@@ -62,10 +67,8 @@ body {
   margin: 0 auto;
   max-width: 1024px;
   margin-top: 1rem;
-  margin-bottom: 100px;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  padding-bottom: 100px;
 }
 
 .price {
@@ -80,4 +83,36 @@ canvas {
 
 summary {
   cursor: pointer;
+}
+
+#tower-table {
+  margin: 0 auto;
+  max-width: 1024px;
+  margin-top: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+
+  th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #f2f2f2;
+    color: black;
+  }
+
+  img {
+    height: 50px;
+    width: 50px;
+  }
 }

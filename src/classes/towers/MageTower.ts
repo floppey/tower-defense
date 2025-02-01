@@ -1,12 +1,12 @@
-import { TowerType } from "../../types/types";
+import { GridPosition } from "../../types/types";
+import { Game } from "../Game";
 import { Crystal } from "../projectiles/Crystal";
 import Tower from "./Tower";
 
 export class MageTower extends Tower {
-  range: number = 10;
-  damage: number = 5000;
-  attackSpeed: number = 2.5;
-  type: TowerType = "mage";
+  constructor(game: Game, gridPosition: GridPosition) {
+    super(game, gridPosition, "mage");
+  }
 
   attack() {
     const currentTime = Date.now();
@@ -22,6 +22,9 @@ export class MageTower extends Tower {
               this.gridPosition
             ),
             damage: this.damage,
+            debuffs: this.debuffs,
+            splash: this.splash,
+            speed: this.game.gameSpeed,
           })
         );
         this.lastAttackTime = currentTime;

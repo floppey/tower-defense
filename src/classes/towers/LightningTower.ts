@@ -1,12 +1,12 @@
-import { TowerType } from "../../types/types";
-import { lightning } from "../projectiles/Lightning";
+import { GridPosition } from "../../types/types";
+import { Game } from "../Game";
+import { Lightning } from "../projectiles/Lightning";
 import Tower from "./Tower";
 
 export class LightningTower extends Tower {
-  range: number = 5;
-  damage: number = 125;
-  attackSpeed: number = 1;
-  type: TowerType = "lightning";
+  constructor(game: Game, gridPosition: GridPosition) {
+    super(game, gridPosition, "lightning");
+  }
 
   attack() {
     const currentTime = Date.now();
@@ -15,13 +15,16 @@ export class LightningTower extends Tower {
       const target = this.getTargetInRange();
       if (target?.gridPosition) {
         this.game.projectiles.push(
-          new lightning({
+          new Lightning({
             game: this.game,
             target: target,
             position: this.game.convertGridPositionToCoordinates(
               this.gridPosition
             ),
             damage: this.damage,
+            debuffs: this.debuffs,
+            splash: this.splash,
+            speed: this.game.gameSpeed * 1.5,
           })
         );
         this.lastAttackTime = currentTime;

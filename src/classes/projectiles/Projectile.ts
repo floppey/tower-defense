@@ -5,6 +5,16 @@ import { Entity } from "../Entity";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
 
+export interface ProjectileProps {
+  game: Game;
+  speed: number;
+  damage: number;
+  target: Monster | GridPosition;
+  position: Coordinates;
+  debuffs?: Debuff[] | null;
+  splash?: number | null;
+}
+
 export class Projectile extends Entity {
   game: Game;
   speed: number;
@@ -25,13 +35,9 @@ export class Projectile extends Entity {
     damage,
     target,
     position,
-  }: {
-    game: Game;
-    speed: number;
-    damage: number;
-    target: Monster | GridPosition;
-    position: Coordinates;
-  }) {
+    splash,
+    debuffs,
+  }: ProjectileProps) {
     super();
     this.game = game;
     this.speed = speed;
@@ -39,6 +45,8 @@ export class Projectile extends Entity {
     this.target = target;
     this.position = position;
     this.angle = 0;
+    this.splash = splash ?? null;
+    this.debuffs = debuffs ?? null;
     this.lastMoveTime = Date.now();
   }
 

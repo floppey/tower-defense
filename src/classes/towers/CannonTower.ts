@@ -1,12 +1,12 @@
-import { TowerType } from "../../types/types";
+import { GridPosition } from "../../types/types";
+import { Game } from "../Game";
 import { Bullet } from "../projectiles/Bullet";
 import Tower from "./Tower";
 
 export class CannonTower extends Tower {
-  range: number = 5;
-  damage: number = 125;
-  attackSpeed: number = 0.5;
-  type: TowerType = "cannon";
+  constructor(game: Game, gridPosition: GridPosition) {
+    super(game, gridPosition, "cannon");
+  }
 
   attack() {
     const currentTime = Date.now();
@@ -22,6 +22,9 @@ export class CannonTower extends Tower {
               this.gridPosition
             ),
             damage: this.damage,
+            speed: this.game.gameSpeed / 10,
+            debuffs: this.debuffs,
+            splash: this.splash,
           })
         );
         this.lastAttackTime = currentTime;

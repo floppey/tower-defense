@@ -1,35 +1,21 @@
 import { ImageName } from "../../constants/images";
-import { Coordinates } from "../../types/types";
 import { getDistanceBetweenCoordinates } from "../../util/getDistanceBetweenCoordinates";
-import { Game } from "../Game";
 import Monster from "../monsters/Monster";
-import { Projectile } from "./Projectile";
+import { Projectile, ProjectileProps } from "./Projectile";
 
-export class lightning extends Projectile {
+interface LightningProps extends ProjectileProps {
+  target: Monster;
+}
+
+export class Lightning extends Projectile {
   height: number = 15;
   width: number = 30;
   previousTargets: number[] = [];
   images: ImageName[] = ["lightning-1", "lightning-2"];
 
-  constructor({
-    game,
-    target,
-    position,
-    damage,
-  }: {
-    game: Game;
-    target: Monster;
-    position: Coordinates;
-    damage: number;
-  }) {
-    super({
-      game,
-      speed: game.gameSpeed * 1.5,
-      damage,
-      target,
-      position,
-    });
-    this.previousTargets.push(target.id);
+  constructor(props: LightningProps) {
+    super(props);
+    this.previousTargets.push(props.target.id);
   }
 
   impact() {

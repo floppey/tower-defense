@@ -1,5 +1,5 @@
 import { Game } from "../classes/Game";
-import { prices, towerTypes } from "../constants/towers";
+import { prices, towerStats, towerTypes } from "../constants/towers";
 
 export const initUi = (game: Game) => {
   const toolbarTop = document.createElement("div");
@@ -59,23 +59,19 @@ export const initUi = (game: Game) => {
   const toolbarBottom = document.createElement("div");
   toolbarBottom.id = "toolbar-bottom";
 
-  Object.values(towerTypes)
-    .sort((a, b) => {
-      return prices[a] - prices[b];
-    })
-    .forEach((tower) => {
-      const towerButton = document.createElement("button");
-      towerButton.innerHTML = `
+  towerTypes.forEach((tower) => {
+    const towerButton = document.createElement("button");
+    towerButton.innerHTML = `
     <img src="assets/tower-${tower}.png" alt="${tower} tower" />
     <span>${tower} tower - <span class="price">${prices[tower].toLocaleString(
-        "en-US"
-      )}🪙</span></span>
+      "en-US"
+    )}🪙</span></span>
     `;
-      towerButton.addEventListener("click", () => {
-        game.newTower = tower;
-      });
-      toolbarBottom.appendChild(towerButton);
+    towerButton.addEventListener("click", () => {
+      game.newTower = tower;
     });
+    toolbarBottom.appendChild(towerButton);
+  });
 
   document.body.appendChild(toolbarBottom);
 
@@ -108,6 +104,53 @@ export const initUi = (game: Game) => {
   `;
   document.body.appendChild(infoPanel);
 
+  const towerTable = document.createElement("div");
+  towerTable.id = "tower-table";
+  towerTable.innerHTML = `
+  <details>
+  <summary>Tower Stats</summary>
+  <h2>Towers:</h2>
+  <i>Speed is number of attacks per second. Range and splash values are in number of squares. 
+  </i>
+  <table>
+  <thead>
+  
+  <tr>
+    <th>Type</th>
+    <th>Damage</th>
+    <th>Speed</th>
+    <th>DPS</th>
+    <th>Range</th>
+    <th>Splash</th>
+    <th>Debuff</th>
+    <th>Special</th>
+  </tr>
+  </thead>
+  <tbody>
+  ${towerTypes
+    .map((tower) => {
+      const stats = towerStats[tower];
+      return `<tr>
+      <td><img src="assets/tower-${tower}.png" alt="${tower} tower" /></td>
+      <td>${stats.damage}</td>
+      <td>${stats.attackSpeed}</td>
+      <td>${stats.damage * stats.attackSpeed}</td>
+      <td>${stats.range}</td>
+      <td>${stats.splash || "❌"}</td>
+      <td>${
+        stats.debuff ? `${stats.debuff} (${stats.debuffDuration}s)` : "❌"
+      }</td>
+      <td>${stats.special ?? ""}</td>
+      </tr>`;
+    })
+    .join("")}
+  </tbody>
+  </table>
+  </details>
+  `;
+
+  document.body.appendChild(towerTable);
+
   const upgradeTower = document.createElement("div");
   upgradeTower.id = "upgrade-tower";
   upgradeTower.innerHTML = `
@@ -124,4 +167,7 @@ export const initUi = (game: Game) => {
   });
 
   document.body.appendChild(upgradeTower);
+
+  const marginFix = document.createElement("div");
+  document.body.appendChild(marginFix);
 };

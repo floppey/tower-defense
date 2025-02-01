@@ -1,12 +1,12 @@
-import { TowerType } from "../../types/types";
+import { GridPosition } from "../../types/types";
+import { Game } from "../Game";
 import { Snowball } from "../projectiles/Snowball";
 import Tower from "./Tower";
 
 export class IceTower extends Tower {
-  range: number = 5;
-  damage: number = 50;
-  attackSpeed: number = 1;
-  type: TowerType = "ice";
+  constructor(game: Game, gridPosition: GridPosition) {
+    super(game, gridPosition, "ice");
+  }
 
   attack() {
     const currentTime = Date.now();
@@ -22,6 +22,9 @@ export class IceTower extends Tower {
               this.gridPosition
             ),
             damage: this.damage,
+            speed: this.game.gameSpeed / 2,
+            debuffs: this.debuffs,
+            splash: this.splash,
           })
         );
         this.lastAttackTime = currentTime;

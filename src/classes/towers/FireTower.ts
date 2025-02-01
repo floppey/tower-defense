@@ -1,12 +1,12 @@
-import { TowerType } from "../../types/types";
+import { GridPosition } from "../../types/types";
+import { Game } from "../Game";
 import { Fireball } from "../projectiles/Fireball";
 import Tower from "./Tower";
 
 export class FireTower extends Tower {
-  range: number = 5;
-  damage: number = 500;
-  attackSpeed: number = 1.5;
-  type: TowerType = "fire";
+  constructor(game: Game, gridPosition: GridPosition) {
+    super(game, gridPosition, "fire");
+  }
 
   attack() {
     const currentTime = Date.now();
@@ -22,6 +22,9 @@ export class FireTower extends Tower {
               this.gridPosition
             ),
             damage: this.damage,
+            speed: this.game.gameSpeed / 2,
+            debuffs: this.debuffs,
+            splash: this.splash,
           })
         );
         this.lastAttackTime = currentTime;
