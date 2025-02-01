@@ -1,4 +1,4 @@
-import { debuffs } from "../../constants/debuffs";
+import { debuffValues } from "../../constants/debuffs";
 import { ImageName } from "../../constants/images";
 import { Projectile } from "./Projectile";
 
@@ -20,5 +20,5 @@ export class Snowball extends Projectile {
     "frost-12",
     "frost-13",
   ];
-  debuffs = [{ type: debuffs.freeze, duration: this.game.gameSpeed * 2 }];
+  debuffs = [{ type: debuffValues.freeze, duration: this.game.gameSpeed * 2 }];
 }

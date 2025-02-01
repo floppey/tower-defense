@@ -43,6 +43,7 @@ export class Game {
   gameSpeed = 1000;
   backgroundImage: HTMLCanvasElement | null = null;
   completedWaves: Record<number, boolean> = {};
+  damageLog: Record<string, number> = {};
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -138,7 +139,8 @@ export class Game {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has("debug")) {
       this.debug = true;
-      this.money = 10000;
+      this.money = 1000000;
+      this.level.wave = 99;
     }
     initUi(this);
   }
@@ -308,6 +310,7 @@ export class Game {
     ) {
       this.completedWaves[this.level.wave] = true;
       console.log(`Wave ${this.level.wave} completed!`);
+      console.log("damage log", this.damageLog);
       const autoStart = (
         document.getElementById("automode") as HTMLInputElement
       )?.checked;

@@ -1,6 +1,16 @@
-import { DebuffType } from "../types/types";
+export const debuffs = ["freeze", "poison", "burn"] as const;
+export type DebuffType = (typeof debuffs)[number];
 
-export const debuffs: Record<DebuffType, DebuffType> = {
+export interface Debuff {
+  type: DebuffType;
+  duration: number;
+  data?: {
+    damage?: number;
+  };
+}
+
+export const debuffValues: Record<DebuffType, DebuffType> = {
   freeze: "freeze",
   poison: "poison",
-} as const;
+  burn: "burn",
+};

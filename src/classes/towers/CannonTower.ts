@@ -25,6 +25,7 @@ export class CannonTower extends Tower {
             speed: this.game.gameSpeed / 10,
             debuffs: this.debuffs,
             splash: this.splash,
+            tower: this,
           })
         );
         this.lastAttackTime = currentTime;

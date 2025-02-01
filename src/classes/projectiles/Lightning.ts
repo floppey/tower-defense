@@ -31,7 +31,7 @@ export class Lightning extends Projectile {
         monster.getCanvasPosition()!,
         this.target.getCanvasPosition()!
       );
-      if (distance < 100) {
+      if (distance < 150) {
         this.previousTargets.push(monster.id);
         this.target = monster;
         this.game.projectiles.push(this);

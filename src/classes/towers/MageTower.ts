@@ -25,6 +25,7 @@ export class MageTower extends Tower {
             debuffs: this.debuffs,
             splash: this.splash,
             speed: this.game.gameSpeed,
+            tower: this,
           })
         );
         this.lastAttackTime = currentTime;

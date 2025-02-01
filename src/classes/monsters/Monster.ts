@@ -1,10 +1,6 @@
+import { Debuff } from "../../constants/debuffs";
 import { MonsterType } from "../../constants/monsters";
-import {
-  Coordinates,
-  Debuff,
-  Direction,
-  GridPosition,
-} from "../../types/types";
+import { Coordinates, Direction, GridPosition } from "../../types/types";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
 
@@ -100,24 +96,43 @@ export default class Monster extends Entity {
       return true;
     });
 
-    let hasAppliedPoison = false;
-    this.debuffs.forEach((debuff) => {
-      // Halve the speed of the monster if it is frozen
-      if (debuff.type === "freeze") {
-        speed /= 2;
-      }
-      // Deal 0.5% of the monster's max health as damage every second if it is poisoned
-      else if (debuff.type === "poison" && !hasAppliedPoison) {
-        hasAppliedPoison = true;
-        const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
-        const damagePersecond = this.maxHealth * 0.005;
-        const poisonDamage =
-          (timeSinceLastUpdate / this.game.gameSpeed) * damagePersecond;
-        this.takeDamage(poisonDamage);
-      }
-    });
+    const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
+    const damageFactor = timeSinceLastUpdate / this.game.gameSpeed;
+    const isPoisoned = this.debuffs.some((debuff) => debuff.type === "poison");
+    const numberOfFreezes = this.debuffs.filter(
+      (debuff) => debuff.type === "freeze"
+    ).length;
+    if (numberOfFreezes > 0) {
+      // Halve the speed of the monster if it is frozen, stacking up to two times
+      this.speed = Math.max(speed / (2 * numberOfFreezes), this.#baseSpeed / 4);
+    }
+    // Deal 0.5% of the monster's max health as damage every second if it is poisoned
+    if (isPoisoned) {
+      const damagePersecond = this.maxHealth * 0.005;
+      const poisonDamage = damageFactor * damagePersecond;
+      this.takeDamage(poisonDamage, "poison");
+    }
 
-    this.speed = Math.max(speed, this.#baseSpeed / 3);
+    // Add all burn debuffs together and combine them into one debuff with the longest duration
+    const burns = this.debuffs.filter((debuff) => debuff.type === "burn");
+    if (burns.length > 1) {
+      const longestDuration = burns.reduce((a, b) =>
+        a.duration > b.duration ? a : b
+      );
+      this.debuffs = this.debuffs.filter((debuff) => debuff.type !== "burn");
+      // Increase the damage of the burn debuff by 5% each time it is stacked
+      const totalBurnDamage =
+        1.05 *
+        burns.reduce((total, burn) => total + (burn.data?.damage ?? 0), 0);
+      const combinedBurn: Debuff = {
+        ...longestDuration,
+        data: {
+          damage: totalBurnDamage,
+        },
+      };
+      this.debuffs.push(combinedBurn);
+      this.takeDamage(damageFactor * totalBurnDamage, "burn");
+    }
   }
 
   update() {
@@ -177,6 +192,17 @@ export default class Monster extends Entity {
     return { x, y };
   }
 
+  getCenter(): Coordinates {
+    const coords = this.getCanvasPosition();
+    if (!coords) {
+      return { x: 0, y: 0 };
+    }
+    return {
+      x: coords.x + this.monsterSize / 2,
+      y: coords.y + this.monsterSize / 2,
+    };
+  }
+
   render() {
     const coords = this.getCanvasPosition();
     if (!coords) {
@@ -219,6 +245,7 @@ export default class Monster extends Entity {
 
     // Draw health bar
     ctx.fillStyle = "red";
+    ctx.fillRect(x + 10, y, this.monsterSize - 20, 5);
     ctx.fillStyle = "green";
     ctx.fillRect(
       x + 10,
@@ -312,7 +339,12 @@ export default class Monster extends Entity {
     }
   }
 
-  takeDamage(amount: number) {
+  takeDamage(amount: number, source: string) {
+    if (!this.game.damageLog[source]) {
+      this.game.damageLog[source] = 0;
+    }
+    this.game.damageLog[source] += Math.min(amount, this.health);
+
     this.health -= amount;
     if (this.health < 0) {
       this.health = 0;

@@ -1,9 +1,11 @@
+import { Debuff } from "../../constants/debuffs";
 import { ImageName } from "../../constants/images";
-import { Coordinates, Debuff, GridPosition } from "../../types/types";
+import { Coordinates, GridPosition } from "../../types/types";
 import { getDistanceBetweenCoordinates } from "../../util/getDistanceBetweenCoordinates";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
+import Tower from "../towers/Tower";
 
 export interface ProjectileProps {
   game: Game;
@@ -13,6 +15,7 @@ export interface ProjectileProps {
   position: Coordinates;
   debuffs?: Debuff[] | null;
   splash?: number | null;
+  tower: Tower;
 }
 
 export class Projectile extends Entity {
@@ -28,6 +31,7 @@ export class Projectile extends Entity {
   images: ImageName[] = ["arrow"];
   splash: number | null = null;
   debuffs: Debuff[] | null = null;
+  tower: Tower;
 
   constructor({
     game,
@@ -37,6 +41,7 @@ export class Projectile extends Entity {
     position,
     splash,
     debuffs,
+    tower,
   }: ProjectileProps) {
     super();
     this.game = game;
@@ -48,12 +53,13 @@ export class Projectile extends Entity {
     this.splash = splash ?? null;
     this.debuffs = debuffs ?? null;
     this.lastMoveTime = Date.now();
+    this.tower = tower;
   }
 
   impact() {
     const target = this.target;
     if (target instanceof Monster) {
-      target.takeDamage(this.damage);
+      target.takeDamage(this.damage, this.tower.type);
       this.debuffs?.forEach((debuff) => {
         target.addDebuff(debuff);
       });
@@ -63,7 +69,7 @@ export class Projectile extends Entity {
         if (target instanceof Monster && monster.id === target.id) {
           return;
         }
-        const monsterCanvasPosition = monster.getCanvasPosition();
+        const monsterCanvasPosition = monster.getCenter();
         if (!monsterCanvasPosition) {
           return;
         }
@@ -72,7 +78,7 @@ export class Projectile extends Entity {
           monsterCanvasPosition
         );
         if (distance <= this.splash! * this.game.squareSize) {
-          monster.takeDamage(this.damage);
+          monster.takeDamage(this.damage, this.tower.type);
           this.debuffs?.forEach((debuff) => {
             monster.addDebuff(debuff);
           });
@@ -97,7 +103,7 @@ export class Projectile extends Entity {
 
   getTargetPosition(): Coordinates {
     if (this.target instanceof Monster) {
-      return this.target.getCanvasPosition()!;
+      return this.target.getCenter()!;
     }
     return this.game.convertGridPositionToCoordinates(this.target);
   }

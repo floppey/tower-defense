@@ -28,6 +28,7 @@ export class PoisonTower extends Tower {
               debuffs: this.debuffs,
               splash: this.splash,
               speed: this.game.gameSpeed / 5,
+              tower: this,
             })
           );
           this.lastAttackTime = currentTime;

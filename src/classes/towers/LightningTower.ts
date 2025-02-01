@@ -25,6 +25,7 @@ export class LightningTower extends Tower {
             debuffs: this.debuffs,
             splash: this.splash,
             speed: this.game.gameSpeed * 1.5,
+            tower: this,
           })
         );
         this.lastAttackTime = currentTime;

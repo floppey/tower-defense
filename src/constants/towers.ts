@@ -6,7 +6,7 @@ import { LightningTower } from "../classes/towers/LightningTower";
 import { MageTower } from "../classes/towers/MageTower";
 import { PoisonTower } from "../classes/towers/PoisonTower";
 import Tower from "../classes/towers/Tower";
-import { DebuffType } from "../types/types";
+import { DebuffType } from "./debuffs";
 
 export const towerTypes = [
   "basic",
@@ -29,7 +29,7 @@ export const prices: Record<TowerType, number> = {
   ice: 450,
   mage: 7500,
   lightning: 2000,
-  poison: 750,
+  poison: 500,
 } as const;
 
 export type TowerStats = {
@@ -59,7 +59,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
   },
   cannon: {
     range: 5,
-    damage: 125,
+    damage: 150,
     attackSpeed: 0.5,
     splash: 1.5,
     debuff: null,
@@ -70,6 +70,8 @@ export const towerStats: Record<TowerType, TowerStats> = {
     attackSpeed: 1,
     splash: 0.75,
     debuff: null,
+    special:
+      "20% chance to crit. Critical hits deal double damage and applies a potentially infinitely scaling burn debuff",
   },
   ice: {
     range: 5,
@@ -78,7 +80,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
     splash: 1,
     debuff: "freeze",
     debuffDuration: 2,
-    special: "Slows enemies by 50%. Can stack to apply 66.7% slow",
+    special: "Slows enemies by 50%. Can stack two times.",
   },
   mage: {
     range: 10,

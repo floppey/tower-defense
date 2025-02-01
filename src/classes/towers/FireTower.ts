@@ -25,6 +25,7 @@ export class FireTower extends Tower {
             speed: this.game.gameSpeed / 2,
             debuffs: this.debuffs,
             splash: this.splash,
+            tower: this,
           })
         );
         this.lastAttackTime = currentTime;

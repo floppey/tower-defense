@@ -1,5 +1,6 @@
+import { Debuff } from "../../constants/debuffs";
 import { towerStats, TowerType } from "../../constants/towers";
-import { Debuff, GridPosition } from "../../types/types";
+import { GridPosition } from "../../types/types";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
@@ -129,6 +130,7 @@ export default class Tower extends Entity {
             speed: this.game.gameSpeed / 4,
             debuffs: this.debuffs,
             splash: this.splash,
+            tower: this,
           })
         );
         // Add a random delay to the next attack
