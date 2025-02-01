@@ -6,7 +6,7 @@
   "homepage": "https://td.nat20.no",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && tsc --noEmit",
     "serve": "vite preview",
     "add-domain": "echo td.nat20.no > dist/CNAME",
     "deploy": "npm run add-domain && gh-pages -d dist",
