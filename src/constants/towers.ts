@@ -83,7 +83,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
   mage: {
     range: 10,
     damage: 5000,
-    attackSpeed: 2.5,
+    attackSpeed: 3,
     splash: 0,
     debuff: null,
   },
