@@ -116,14 +116,17 @@ export default class Monster extends Entity {
     // Add all burn debuffs together and combine them into one debuff with the longest duration
     const burns = this.debuffs.filter((debuff) => debuff.type === "burn");
     if (burns.length > 1) {
+      // Temporarily remove all burn debuffs to combine them into one
+      this.debuffs = this.debuffs.filter((debuff) => debuff.type !== "burn");
+      // Find the burn with the longest duration
       const longestDuration = burns.reduce((a, b) =>
         a.duration > b.duration ? a : b
       );
-      this.debuffs = this.debuffs.filter((debuff) => debuff.type !== "burn");
-      // Increase the damage of the burn debuff by 5% each time it is stacked
-      const totalBurnDamage =
-        1.05 *
-        burns.reduce((total, burn) => total + (burn.data?.damage ?? 0), 0);
+      // Increase the damage of the burn debuff by 2.5% each time it is stacked
+      const totalBurnDamage = Math.floor(
+        1.025 *
+          burns.reduce((total, burn) => total + (burn.data?.damage ?? 0), 0)
+      );
       const combinedBurn: Debuff = {
         ...longestDuration,
         data: {
