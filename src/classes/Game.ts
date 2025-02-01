@@ -20,6 +20,11 @@ import Tower from "./towers/Tower";
 import { ImageName, imageNames } from "../constants/images";
 import { MonsterType, monsterTypes } from "../constants/monsters";
 import { burbenogMap } from "../maps/burbenogMap";
+import { getMonsterSpeed } from "../util/getMonsterSpeed";
+import { getMonsterHealth } from "../util/getMonsterHealth";
+import { isBossWave } from "../util/isBossWave";
+import { getMonsterReward } from "../util/getMonsterReward";
+import { getNumberOfMonstersPerWave } from "../util/getNumberOfMonstersPerWave";
 
 export class Game {
   #health: number = 10;
@@ -145,24 +150,10 @@ export class Game {
     initUi(this);
   }
 
-  getNumberOfMonstersPerWave() {
-    if (this.isBossWave()) {
-      return 1;
-    }
-    if (this.level.wave > 30) {
-      return 50;
-    }
-    return 20 + (this.level.wave - 1);
-  }
-
-  isBossWave() {
-    return this.level.wave % 10 === 0;
-  }
-
   canStartWave() {
     return (
       this.#health > 0 &&
-      (this.tempCounter === this.getNumberOfMonstersPerWave() ||
+      (this.tempCounter === getNumberOfMonstersPerWave(this.level.wave) ||
         this.tempCounter === -1)
     );
   }
@@ -174,57 +165,31 @@ export class Game {
     this.level.wave++;
     this.tempCounter = 0;
     console.log(
-      `Starting ${this.isBossWave() ? "boss wave" : "wave"} ${
+      `Starting ${isBossWave(this.level.wave) ? "boss wave" : "wave"} ${
         this.level.wave
-      }. ${this.getNumberOfMonstersPerWave()} monsters with ${this.getHealth()} health and ${this.getSpeed()} speed`
+      }. ${getNumberOfMonstersPerWave(
+        this.level.wave
+      )} monsters with ${getMonsterHealth(
+        this.level.wave
+      )} health and ${getMonsterSpeed(this.level.wave)} speed`
     );
     this.spawnMonsters();
   }
 
   spawnMonsters() {
     setTimeout(() => {
-      if (this.tempCounter < this.getNumberOfMonstersPerWave()) {
+      if (this.tempCounter < getNumberOfMonstersPerWave(this.level.wave)) {
         this.level.startPositions.forEach((_, index) => {
           this.spawnMonster(`${index}`);
         });
         this.tempCounter++;
         this.spawnMonsters();
       }
-    }, this.gameSpeed / 2 / this.getSpeed());
-  }
-
-  getSpeed() {
-    let speed = 1;
-    if (this.level.wave > 2) {
-      speed += (this.level.wave - 2) * 0.1;
-    }
-
-    return Math.min(speed, 5);
-  }
-
-  getHealth() {
-    let health = 100;
-    const baseHealthIncrease = 50;
-    let healthIncrease = 0;
-    for (let i = 0; i < this.level.wave; i += 1) {
-      healthIncrease += baseHealthIncrease * (i * 2);
-      healthIncrease += Math.pow(i, 2.5);
-    }
-    if (this.isBossWave()) {
-      healthIncrease *= 30;
-    }
-    return Math.floor(health + healthIncrease);
-  }
-
-  getReward() {
-    if (this.isBossWave()) {
-      return Math.floor(1000 * (this.level.wave / 10));
-    }
-    return 10 + Math.floor(this.level.wave / 2);
+    }, this.gameSpeed / 2 / getMonsterSpeed(this.level.wave));
   }
 
   spawnMonster(path: string) {
-    const MonsterClass = this.isBossWave() ? BossMonster : Monster;
+    const MonsterClass = isBossWave(this.level.wave) ? BossMonster : Monster;
     let monsterType: MonsterType;
     if (this.level.wave <= 10) {
       monsterType = "plant";
@@ -241,10 +206,10 @@ export class Game {
     this.level.monsters.push(
       new MonsterClass({
         game: this,
-        health: this.getHealth(),
-        speed: this.getSpeed(),
-        damage: this.isBossWave() ? 5 : 1,
-        reward: this.getReward(),
+        health: getMonsterHealth(this.level.wave),
+        speed: getMonsterSpeed(this.level.wave),
+        damage: isBossWave(this.level.wave) ? 5 : 1,
+        reward: getMonsterReward(this.level.wave),
         type: monsterType,
         path,
       })
@@ -310,7 +275,10 @@ export class Game {
     ) {
       this.completedWaves[this.level.wave] = true;
       console.log(`Wave ${this.level.wave} completed!`);
-      console.log("damage log", this.damageLog);
+      console.log("*** DAMAGE LOG ***");
+      Object.keys(this.damageLog).forEach((key) => {
+        console.log(`${key}: ${this.damageLog[key].toLocaleString()}`);
+      });
       const autoStart = (
         document.getElementById("automode") as HTMLInputElement
       )?.checked;
