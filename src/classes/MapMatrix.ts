@@ -93,7 +93,7 @@ export class MapMatrix extends Entity {
 
     // Find the valid neighbors that can be a path
     const validPathNeighbors = neighbors.filter(({ col, row }) =>
-      this.canBePath(col, row, pathNumber)
+      this.canBePath(col, row, pathNumber, pathName)
     );
     if (validPathNeighbors.length === 0) {
       return -1;
@@ -145,7 +145,7 @@ export class MapMatrix extends Entity {
     col: number,
     row: number,
     pathNumber: number,
-    pathName?: string
+    pathName: string
   ): boolean {
     const cell = this.getCell(col, row);
     // Check if the cell is not set, or if it's a path
