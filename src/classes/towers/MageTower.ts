@@ -4,7 +4,7 @@ import Tower from "./Tower";
 
 export class MageTower extends Tower {
   range: number = 10;
-  damage: number = 2500;
+  damage: number = 5000;
   attackSpeed: number = 2.5;
   type: TowerType = "mage";
 
