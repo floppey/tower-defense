@@ -1,3 +1,4 @@
+import { getNumberOfMonstersPerWave } from "./getNumberOfMonstersPerWave";
 import { isBossWave } from "./isBossWave";
 
 export const getMonsterHealth = (wave: number) => {
@@ -9,7 +10,7 @@ export const getMonsterHealth = (wave: number) => {
     healthIncrease += Math.pow(i, 2.5);
   }
   if (isBossWave(wave)) {
-    healthIncrease *= 30;
+    healthIncrease *= getNumberOfMonstersPerWave(wave - 1) / 2;
   }
   return Math.floor(baseHealth + healthIncrease);
 };
