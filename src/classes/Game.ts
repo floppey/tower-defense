@@ -277,7 +277,9 @@ export class Game {
       console.log(`Wave ${this.level.wave} completed!`);
       console.log("*** DAMAGE LOG ***");
       Object.keys(this.damageLog).forEach((key) => {
-        console.log(`${key}: ${this.damageLog[key].toLocaleString()}`);
+        console.log(
+          `${key}: ${Math.round(this.damageLog[key]).toLocaleString()}`
+        );
       });
       const autoStart = (
         document.getElementById("automode") as HTMLInputElement
