@@ -13,12 +13,15 @@ This project is a Tower Defense game where players strategically place towers to
 - In-game currency system for purchasing and upgrading towers
 - Basic UI for displaying game information
 - Multiple levels with increasing difficulty
+- Multiple tower types with different abilities
+- User-friendly interface with intuitive controls
+- Map builder
 
 ## Planned features
 
-- Multiple tower types with different abilities and upgrade paths
+- Upgrade towers
 - Various enemy types with unique strengths and weaknesses
-- User-friendly interface with intuitive controls
+- More maps
 
 ## Installation
 
