@@ -8,7 +8,7 @@ export class SupportTowerDamage extends SupportTower {
     {
       origin: this.id,
       type: "damage",
-      value: 2, // Damage Multiplier
+      value: 1.5, // Damage Multiplier
       stackable: true,
     },
   ];
