@@ -101,7 +101,8 @@ export const towerStats: Record<TowerType, TowerStats> = {
     attackSpeed: 1,
     splash: 0,
     debuff: null,
-    special: "Chains to nearby enemies",
+    special:
+      "Deals random damage. With a good deal of luck it can oneshot any monster. Lightning also chains to nearby enemies",
   },
   poison: {
     range: 2,
