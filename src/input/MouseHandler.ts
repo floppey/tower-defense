@@ -1,4 +1,5 @@
 import { Game } from "../classes/Game";
+import Tower from "../classes/towers/Tower";
 import { TOWER_CELL, UNSET_CELL } from "../constants/mapMatrixConstants";
 import { prices, TowerClasses } from "../constants/towers";
 import { Coordinates, GridPosition } from "../types/types";
@@ -57,7 +58,23 @@ export class MouseHandler {
           this.game.newTower = null;
         }
       }
+    } else if (this.game.newTower === null) {
+      const tower = this.getTowerInCell(cell);
+      if (tower) {
+        this.game.selectedTower = tower;
+        console.log(tower);
+      } else {
+        this.game.selectedTower = null;
+      }
     }
+  }
+
+  getTowerInCell(cell: GridPosition): Tower | undefined {
+    return this.game.level.towers.find(
+      (tower) =>
+        tower.gridPosition.col === cell.col &&
+        tower.gridPosition.row === cell.row
+    );
   }
 
   handleContextMenu(event: MouseEvent) {
@@ -68,19 +85,15 @@ export class MouseHandler {
     } else if (
       this.game.level.mapMatrix.matrix[cell.col][cell.row] === TOWER_CELL
     ) {
-      const tower = this.game.level.towers.find(
-        (tower) =>
-          tower.gridPosition.col === cell.col &&
-          tower.gridPosition.row === cell.row
-      );
+      const tower = this.getTowerInCell(cell);
       if (tower) {
         this.game.paused = true;
         if (confirm(`Sell for ${prices[tower.type] / 2} coins?`)) {
-          this.game.money += prices[tower.type] / 2;
           this.game.level.towers = this.game.level.towers.filter(
             (t) => t.id !== tower.id
           );
           this.game.level.mapMatrix.matrix[cell.col][cell.row] = UNSET_CELL;
+          tower.onSell();
         }
         this.game.paused = false;
       }

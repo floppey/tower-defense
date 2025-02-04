@@ -1,6 +1,8 @@
+import { Buff } from "../../constants/buffs";
 import { Debuff } from "../../constants/debuffs";
-import { towerStats, TowerType } from "../../constants/towers";
+import { prices, towerStats, TowerType } from "../../constants/towers";
 import { GridPosition } from "../../types/types";
+import { getDistanceBetweenGridPositions } from "../../util/getDistanceBetweenGridPositions";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
@@ -11,6 +13,8 @@ export default class Tower extends Entity {
   gridPosition: GridPosition;
   range: number = 4;
   damage: number = 60;
+  baseDamage: number = 60;
+  baseRange: number = 4;
   attackSpeed: number = 0.5;
   lastAttackTime: number = Date.now();
   placed: boolean = false;
@@ -18,6 +22,7 @@ export default class Tower extends Entity {
   multiTarget: boolean = false;
   splash: number | null = null;
   debuffs: Debuff[] | null = null;
+  #towerBuffs: Buff[] = [];
 
   constructor(game: Game, gridPosition: GridPosition, type: TowerType) {
     super();
@@ -26,7 +31,9 @@ export default class Tower extends Entity {
     this.game = game;
     this.gridPosition = gridPosition;
     this.range = stats.range;
+    this.baseRange = stats.range;
     this.damage = stats.damage;
+    this.baseDamage = stats.damage;
     this.attackSpeed = stats.attackSpeed;
     this.splash = stats.splash;
     if (stats.debuff)
@@ -41,6 +48,11 @@ export default class Tower extends Entity {
   getImage() {
     let images = [this.game.images[`tower-${this.type}`]];
     if (this.type === "lightning") {
+      images = [
+        this.game.images[`tower-${this.type}`],
+        this.game.images[`tower-${this.type}-2`],
+      ];
+    } else if (this.type === "support-damage") {
       images = [
         this.game.images[`tower-${this.type}`],
         this.game.images[`tower-${this.type}-2`],
@@ -71,6 +83,28 @@ export default class Tower extends Entity {
         alert(`Error rendering tower ${image}: ${e}`);
       }
     }
+
+    if (this.id === this.game.selectedTower?.id) {
+      const { squareSize } = this.game;
+      const { col, row } = this.gridPosition;
+      this.game.ctx.save();
+      this.game.ctx.globalAlpha = 0.25;
+      // Draw a circle indicating the tower's range
+      this.game.ctx.beginPath();
+      this.game.ctx.arc(
+        col * squareSize + squareSize / 2,
+        row * squareSize + squareSize / 2,
+        this.range * squareSize,
+        0,
+        2 * Math.PI
+      );
+      this.game.ctx.fillStyle = "purple";
+      this.game.ctx.globalAlpha = 0.5;
+
+      this.game.ctx.fill();
+
+      this.game.ctx.restore();
+    }
   }
 
   update() {
@@ -82,15 +116,12 @@ export default class Tower extends Entity {
       return false;
     }
 
-    const { col, row } = this.gridPosition;
-
-    const monsterCol = monster.gridPosition.col;
-    const monsterRow = monster.gridPosition.row;
-
-    const distance = Math.sqrt(
-      Math.pow(monsterCol - col, 2) + Math.pow(monsterRow - row, 2)
+    return (
+      getDistanceBetweenGridPositions(
+        this.gridPosition,
+        monster.gridPosition
+      ) <= this.range
     );
-    return Math.abs(distance) <= this.range;
   }
 
   getTargetInRange(): Monster | undefined {
@@ -140,5 +171,38 @@ export default class Tower extends Entity {
             this.game.gameSpeed;
       }
     }
+  }
+
+  onSell() {
+    this.game.money += prices[this.type] / 2;
+  }
+
+  addBuff(buff: Buff) {
+    this.towerBuffs = [...this.towerBuffs, buff];
+  }
+
+  removeBuff(buff: Buff) {
+    this.towerBuffs = this.towerBuffs.filter(
+      (tb) => tb.type !== buff.type && tb.origin !== buff.origin
+    );
+  }
+
+  get towerBuffs() {
+    return this.#towerBuffs;
+  }
+
+  set towerBuffs(buffs: Buff[]) {
+    this.#towerBuffs = buffs;
+    let rangeMultiplier = 1;
+    let damageMultiplier = 1;
+    this.#towerBuffs.forEach((buff) => {
+      if (buff.type === "range") {
+        rangeMultiplier *= buff.value;
+      } else if (buff.type === "damage") {
+        damageMultiplier *= buff.value;
+      }
+    });
+    this.damage = this.baseDamage * damageMultiplier;
+    this.range = this.baseRange * rangeMultiplier;
   }
 }

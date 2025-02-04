@@ -44,6 +44,7 @@ export class Game {
   tempCounter = -1;
   projectiles: Projectile[] = [];
   #newTower: Tower | null = null;
+  selectedTower: Tower | null = null;
   #paused = false;
   gameSpeed = 1000;
   backgroundImage: HTMLCanvasElement | null = null;

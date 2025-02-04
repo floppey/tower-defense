@@ -5,6 +5,8 @@ import { IceTower } from "../classes/towers/IceTower";
 import { LightningTower } from "../classes/towers/LightningTower";
 import { MageTower } from "../classes/towers/MageTower";
 import { PoisonTower } from "../classes/towers/PoisonTower";
+import { SupportTowerDamage } from "../classes/towers/SupportTowerDamage";
+import { SupportTowerRange } from "../classes/towers/SupportTowerRange";
 import Tower from "../classes/towers/Tower";
 import { DebuffType } from "./debuffs";
 
@@ -17,6 +19,8 @@ export const towerTypes = [
   "fire",
   "lightning",
   "mage",
+  "support-damage",
+  "support-range",
 ] as const;
 
 export type TowerType = (typeof towerTypes)[number];
@@ -30,6 +34,8 @@ export const prices: Record<TowerType, number> = {
   mage: 7500,
   lightning: 2000,
   poison: 500,
+  "support-damage": 5000,
+  "support-range": 5000,
 } as const;
 
 export type TowerStats = {
@@ -106,6 +112,22 @@ export const towerStats: Record<TowerType, TowerStats> = {
     debuffDuration: 10,
     special: "Poison deals 0.5% of the target's max health per second",
   },
+  "support-damage": {
+    range: 2,
+    damage: 0,
+    attackSpeed: 0,
+    splash: 0,
+    debuff: null,
+    special: "Increases damage of nearby towers by 50%",
+  },
+  "support-range": {
+    range: 2,
+    damage: 0,
+    attackSpeed: 0,
+    splash: 0,
+    debuff: null,
+    special: "Increases range of nearby towers by 50%",
+  },
 } as const;
 
 export const TowerClasses: Record<TowerType, typeof Tower> = {
@@ -117,4 +139,6 @@ export const TowerClasses: Record<TowerType, typeof Tower> = {
   fire: FireTower,
   lightning: LightningTower,
   poison: PoisonTower,
+  "support-damage": SupportTowerDamage,
+  "support-range": SupportTowerRange,
 };
