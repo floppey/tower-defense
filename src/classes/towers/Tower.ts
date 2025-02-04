@@ -197,9 +197,9 @@ export default class Tower extends Entity {
     let damageMultiplier = 1;
     this.#towerBuffs.forEach((buff) => {
       if (buff.type === "range") {
-        rangeMultiplier *= buff.value;
+        rangeMultiplier += buff.value;
       } else if (buff.type === "damage") {
-        damageMultiplier *= buff.value;
+        damageMultiplier += buff.value;
       }
     });
     this.damage = this.baseDamage * damageMultiplier;

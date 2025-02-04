@@ -8,7 +8,7 @@ export class SupportTowerDamage extends SupportTower {
     {
       origin: this.id,
       type: "damage",
-      value: 1.5, // Damage Multiplier
+      value: 0.5, // additively stacks with other damage buffs
       stackable: true,
     },
   ];

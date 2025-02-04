@@ -8,7 +8,7 @@ export class SupportTowerRange extends SupportTower {
     {
       origin: this.id,
       type: "range",
-      value: 1.5, // Range Multiplier
+      value: 0.5, // additively stacks with other range buffs
       stackable: true,
     },
   ];
