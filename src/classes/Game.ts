@@ -179,8 +179,8 @@ export class Game {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has("debug")) {
       this.debug = true;
-      this.money = 1000000;
-      this.level.wave = 99;
+      this.level.wave = Number(prompt("Wave to start from", "1")) - 1;
+      this.money = Number(prompt("Money", "100"));
       /* @ts-expect-error Expose game object to window */
       window.getMonsterHealth = getMonsterHealth;
       /* @ts-expect-error Expose game object to window */
@@ -292,11 +292,6 @@ export class Game {
         );
       })
       .sort((a, b) => b.distance - a.distance);
-
-    if (this.level.monsters.length !== length) {
-      console.log(this.level.mapMatrix.totalDistances);
-      console.log(this.level.monsters);
-    }
 
     monstersInEnd.forEach((monster) => {
       console.log(`Monster reached the end, -${monster.damage} health`);
