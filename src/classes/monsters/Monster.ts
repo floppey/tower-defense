@@ -105,6 +105,8 @@ export default class Monster extends Entity {
     if (numberOfFreezes > 0) {
       // Halve the speed of the monster if it is frozen, stacking up to two times
       this.speed = Math.max(speed / (2 * numberOfFreezes), this.#baseSpeed / 4);
+    } else {
+      this.speed = speed;
     }
     // Deal 0.5% of the monster's max health as damage every second if it is poisoned
     if (isPoisoned) {
