@@ -34,6 +34,7 @@ export class Lightning extends Projectile {
       if (distance < 150) {
         this.previousTargets.push(monster.id);
         this.target = monster;
+        this.damage *= 0.9;
         this.game.projectiles.push(this);
         return true;
       }
