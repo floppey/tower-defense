@@ -6,7 +6,7 @@ import { Level } from "./Level";
 export class MapMatrix extends Entity {
   matrix: Map;
   level: Level;
-  totalDistance = 0;
+  totalDistances: Record<string, number> = {};
   distanceToPositionMap: { [key: string]: GridPosition } = {};
 
   constructor(level: Level, map?: Map) {
@@ -15,14 +15,15 @@ export class MapMatrix extends Entity {
     this.matrix = {};
     if (map) {
       this.matrix = map;
-
       Object.values(map).forEach((col) => {
         Object.values(col).forEach((cell) => {
           if (Array.isArray(cell)) {
-            this.totalDistance = Math.max(
-              ...cell.map((c) => c.distance),
-              this.totalDistance
-            );
+            cell.forEach((step) => {
+              this.totalDistances[step.path] = Math.max(
+                step.distance || 0,
+                this.totalDistances[step.path] || 0
+              );
+            });
           }
         });
       });
@@ -57,16 +58,18 @@ export class MapMatrix extends Entity {
 
       do {
         this.initMatrix();
-        this.totalDistance = this.buildPath(
-          startPos.col,
-          startPos.row,
-          1,
-          `${index}`
-        );
+        this.level.startPositions?.forEach((pos, i) => {
+          this.totalDistances[i] = this.buildPath(pos.col, pos.row, 1, `${i}`);
+        });
+
         attempts++;
       } while (
-        (this.totalDistance < this.level.minLength ||
-          this.totalDistance > this.level.maxLength) &&
+        (Object.keys(this.totalDistances).some(
+          (path) => this.totalDistances[path] < this.level.minLength
+        ) ||
+          Object.keys(this.totalDistances).some(
+            (path) => this.totalDistances[path] > this.level.maxLength
+          )) &&
         attempts < 100
       );
       if (attempts >= 100) {

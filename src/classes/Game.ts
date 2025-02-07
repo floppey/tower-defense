@@ -273,7 +273,8 @@ export class Game {
       return;
     }
     const monstersInEnd = this.level.monsters.filter(
-      (monster) => monster.distance >= this.level.mapMatrix.totalDistance
+      (monster) =>
+        monster.distance >= this.level.mapMatrix.totalDistances[monster.path]
     );
     const deadMonsters = this.level.monsters.filter(
       (monster) => !monster.isAlive()
@@ -282,14 +283,21 @@ export class Game {
       this.money += monster.reward;
       this.killCount++;
     });
+    const length = this.level.monsters.length;
     this.level.monsters = this.level.monsters
       .filter((monster) => {
         return (
           monster.isAlive() &&
-          monster.distance < this.level.mapMatrix.totalDistance
+          monster.distance < this.level.mapMatrix.totalDistances[monster.path]
         );
       })
       .sort((a, b) => b.distance - a.distance);
+
+    if (this.level.monsters.length !== length) {
+      console.log(this.level.mapMatrix.totalDistances);
+      console.log(this.level.monsters);
+    }
+
     monstersInEnd.forEach((monster) => {
       console.log(`Monster reached the end, -${monster.damage} health`);
       this.health -= monster.damage;
