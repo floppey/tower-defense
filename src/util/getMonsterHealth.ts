@@ -7,7 +7,7 @@ export const getMonsterHealth = (wave: number) => {
   let healthIncrease = 0;
   for (let i = 0; i < wave; i += 1) {
     healthIncrease += baseHealthIncrease * (i * 2);
-    healthIncrease += Math.pow(i, 2.5);
+    healthIncrease += Math.pow(i, 1.5 + Math.floor(i / 50) / 2);
   }
   if (isBossWave(wave)) {
     healthIncrease *= getNumberOfMonstersPerWave(wave - 1) / 2;
