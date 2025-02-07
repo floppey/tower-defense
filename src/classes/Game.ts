@@ -147,6 +147,14 @@ export class Game {
       this.debug = true;
       this.money = 1000000;
       this.level.wave = 99;
+      /* @ts-expect-error Expose game object to window */
+      window.getMonsterHealth = getMonsterHealth;
+      /* @ts-expect-error Expose game object to window */
+      window.getMonsterSpeed = getMonsterSpeed;
+      /* @ts-expect-error Expose game object to window */
+      window.getNumberOfMonstersPerWave = getNumberOfMonstersPerWave;
+      /* @ts-expect-error Expose game object to window */
+      window.isBossWave = isBossWave;
     }
     initUi(this);
   }
