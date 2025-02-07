@@ -20,6 +20,7 @@ import Tower from "./towers/Tower";
 import { ImageName, imageNames } from "../constants/images";
 import { MonsterType, monsterTypes } from "../constants/monsters";
 import { burbenogMap } from "../maps/burbenogMap";
+import { wintermaulMap } from "../maps/wintermaulMap";
 import { getMonsterSpeed } from "../util/getMonsterSpeed";
 import { getMonsterHealth } from "../util/getMonsterHealth";
 import { isBossWave } from "../util/isBossWave";
@@ -58,7 +59,7 @@ export class Game {
       throw new Error("2d context not supported");
     }
     this.ctx = ctx;
-    if (Math.random() > 0.5) {
+    if (Math.random() > 0.75) {
       this.gridHeight = 30;
       this.gridWidth = 30;
       this.level = new Level({
@@ -92,7 +93,37 @@ export class Game {
         minLength: 100,
         map: burbenogMap,
       });
-    } else if (Math.random() > 0.5) {
+    } else if (Math.random() > 0.75) {
+      this.gridHeight = 48;
+      this.gridWidth = 32;
+      this.level = new Level({
+        game: this,
+        endPositions: [
+          {
+            col: 16,
+            row: 47,
+          },
+        ],
+        startPositions: [
+          {
+            col: 5,
+            row: 0,
+          },
+          {
+            col: 16,
+            row: 0,
+          },
+          {
+            col: 26,
+            row: 0,
+          },
+        ],
+        maxLength: 100,
+        maxRepeatSquares: 1,
+        minLength: 60,
+        map: wintermaulMap,
+      });
+    } else if (Math.random() > 0.75) {
       this.gridHeight = 20;
       this.gridWidth = 20;
       this.level = new Level({

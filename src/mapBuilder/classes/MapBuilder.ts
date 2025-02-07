@@ -3,7 +3,6 @@ import {
   START_CELL,
   UNSET_CELL,
 } from "../../constants/mapMatrixConstants";
-import { burbenogMap } from "../../maps/burbenogMap";
 import { GridPosition, Map } from "../../types/types";
 import { MapBuilderMouseHandler } from "./MapBuilderMouseHandler";
 
@@ -43,7 +42,7 @@ export class MapBuilder {
     this.mapMatrix = Array.from({ length: this.width }, () =>
       Array(this.height).fill(UNSET_CELL)
     );
-    this.mapMatrix = burbenogMap;
+    // this.mapMatrix = burbenogMap;
   }
 
   drawGrid(): void {
@@ -147,17 +146,19 @@ export class MapBuilder {
     });
 
     let key = 0;
-    this.ctx.moveTo(
-      pathMap[key].col * this.squareSize + this.squareSize / 2,
-      pathMap[key].row * this.squareSize + this.squareSize / 2
-    );
-    key += 1;
-    while (pathMap[key]) {
-      this.ctx.lineTo(
+    if (pathMap[key]) {
+      this.ctx.moveTo(
         pathMap[key].col * this.squareSize + this.squareSize / 2,
         pathMap[key].row * this.squareSize + this.squareSize / 2
       );
       key += 1;
+      while (pathMap[key]) {
+        this.ctx.lineTo(
+          pathMap[key].col * this.squareSize + this.squareSize / 2,
+          pathMap[key].row * this.squareSize + this.squareSize / 2
+        );
+        key += 1;
+      }
     }
     this.ctx.stroke();
     this.ctx.restore();
