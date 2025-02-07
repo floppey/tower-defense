@@ -16,21 +16,19 @@ export class LightningTower extends Tower {
       const target = this.getTargetInRange();
       if (target?.gridPosition) {
         const monsterHealth = getMonsterHealth(this.game.level.wave);
-        let damage = monsterHealth / 10000;
+        let damage = monsterHealth / 100000;
 
         let damageMultiplier = 1;
         this.towerBuffs.forEach((buff) => {
           if (buff.type === "damage") {
-            damageMultiplier *= buff.value;
+            damageMultiplier += buff.value;
           }
         });
         damage *= damageMultiplier;
 
-        while (Math.random() > 0.9) {
+        while (Math.random() > 0.8) {
           damage *= 10;
         }
-
-        console.log("Lightning Tower Damage: ", damage);
 
         this.game.projectiles.push(
           new Lightning({
