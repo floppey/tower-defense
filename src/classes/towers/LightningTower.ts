@@ -1,5 +1,4 @@
 import { GridPosition } from "../../types/types";
-import { getMonsterHealth } from "../../util/getMonsterHealth";
 import { Game } from "../Game";
 import { Lightning } from "../projectiles/Lightning";
 import Tower from "./Tower";
@@ -15,9 +14,6 @@ export class LightningTower extends Tower {
     if (this.canAttack()) {
       const target = this.getTargetInRange();
       if (target?.gridPosition) {
-        const monsterHealth = getMonsterHealth(this.game.level.wave);
-        this.damage = monsterHealth / 10000;
-
         let damage = this.damage;
 
         let damageMultiplier = 1;

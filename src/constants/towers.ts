@@ -97,7 +97,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
   },
   lightning: {
     range: 5,
-    damage: 125,
+    damage: 25,
     attackSpeed: 1,
     splash: 0,
     debuff: null,
