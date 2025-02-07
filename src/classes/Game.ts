@@ -146,6 +146,13 @@ export class Game {
         map: spiralMap,
       });
     } else {
+      let startPositions: GridPosition[] = [];
+      do {
+        startPositions.push({
+          col: Math.floor(((Math.random() + 0.5) * this.gridHeight) / 2),
+          row: Math.floor(((Math.random() + 0.5) * this.gridWidth) / 2),
+        });
+      } while (Math.random() > 0.85 && startPositions.length < 4);
       this.level = new Level({
         game: this,
         endPositions: [
@@ -154,18 +161,14 @@ export class Game {
             row: Math.floor((Math.random() * this.gridWidth) / 2),
           },
         ],
-        startPositions: [
-          {
-            col: Math.floor(((Math.random() + 0.5) * this.gridHeight) / 2),
-            row: Math.floor(((Math.random() + 0.5) * this.gridWidth) / 2),
-          },
-        ],
+        startPositions: startPositions,
         maxLength: 250,
         maxRepeatSquares: 3,
         minLength: 100,
       });
     }
     this.#health = 10 * this.level.startPositions.length;
+    this.money = 100 + 50 * (this.level.startPositions.length - 1);
     this.canvas.width = this.squareSize * this.gridWidth;
     this.canvas.height = this.squareSize * this.gridHeight;
 
@@ -373,6 +376,92 @@ export class Game {
 
         this.ctx.fill();
 
+        this.ctx.restore();
+      }
+
+      if (this.selectedTower) {
+        const { col, row } = this.selectedTower.gridPosition;
+
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.25;
+        // Draw a circle indicating the tower's range
+        this.ctx.beginPath();
+        this.ctx.arc(
+          col * this.squareSize + this.squareSize / 2,
+          row * this.squareSize + this.squareSize / 2,
+          this.selectedTower.range * this.squareSize,
+          0,
+          2 * Math.PI
+        );
+        this.ctx.fillStyle = "blue";
+        this.ctx.globalAlpha = 0.35;
+        this.ctx.fill();
+        this.ctx.restore();
+
+        // Show tower stats
+        let y = 0;
+        this.ctx.save();
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(this.canvas.width - 200, y, 200, 140);
+        y += 20;
+
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "16px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText(
+          `${this.selectedTower.type} tower`,
+          this.canvas.width - 100,
+          y
+        );
+        y += 20;
+        this.ctx.textAlign = "left";
+        this.ctx.fillText("Damage: ", this.canvas.width - 180, y);
+        this.ctx.textAlign = "right";
+        this.ctx.fillText(
+          Math.round(this.selectedTower.damage).toLocaleString("en-US"),
+          this.canvas.width - 20,
+          y
+        );
+        y += 20;
+        this.ctx.textAlign = "left";
+        this.ctx.fillText("Speed: ", this.canvas.width - 180, y);
+        this.ctx.textAlign = "right";
+        this.ctx.fillText(
+          this.selectedTower.attackSpeed.toLocaleString("en-US"),
+          this.canvas.width - 20,
+          y
+        );
+        y += 20;
+        this.ctx.textAlign = "left";
+        this.ctx.fillText("DPS: ", this.canvas.width - 180, y);
+        this.ctx.textAlign = "right";
+        this.ctx.fillText(
+          Math.round(
+            this.selectedTower.damage * this.selectedTower.attackSpeed
+          ).toLocaleString("en-US"),
+          this.canvas.width - 20,
+          y
+        );
+        y += 20;
+        this.ctx.textAlign = "left";
+        this.ctx.fillText("Range: ", this.canvas.width - 180, y);
+        this.ctx.textAlign = "right";
+        this.ctx.fillText(
+          Math.round(this.selectedTower.range).toLocaleString("en-US"),
+          this.canvas.width - 20,
+          y
+        );
+        y += 20;
+        this.ctx.textAlign = "left";
+        this.ctx.fillText("Splash: ", this.canvas.width - 180, y);
+        this.ctx.textAlign = "right";
+        this.ctx.fillText(
+          this.selectedTower.splash
+            ? this.selectedTower.splash.toLocaleString("en-US")
+            : "❌",
+          this.canvas.width - 20,
+          y
+        );
         this.ctx.restore();
       }
     } catch (e) {

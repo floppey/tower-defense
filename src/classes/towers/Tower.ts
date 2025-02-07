@@ -83,28 +83,6 @@ export default class Tower extends Entity {
         alert(`Error rendering tower ${image}: ${e}`);
       }
     }
-
-    if (this.id === this.game.selectedTower?.id) {
-      const { squareSize } = this.game;
-      const { col, row } = this.gridPosition;
-      this.game.ctx.save();
-      this.game.ctx.globalAlpha = 0.25;
-      // Draw a circle indicating the tower's range
-      this.game.ctx.beginPath();
-      this.game.ctx.arc(
-        col * squareSize + squareSize / 2,
-        row * squareSize + squareSize / 2,
-        this.range * squareSize,
-        0,
-        2 * Math.PI
-      );
-      this.game.ctx.fillStyle = "purple";
-      this.game.ctx.globalAlpha = 0.5;
-
-      this.game.ctx.fill();
-
-      this.game.ctx.restore();
-    }
   }
 
   update() {

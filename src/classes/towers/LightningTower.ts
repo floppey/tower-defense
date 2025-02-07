@@ -16,7 +16,9 @@ export class LightningTower extends Tower {
       const target = this.getTargetInRange();
       if (target?.gridPosition) {
         const monsterHealth = getMonsterHealth(this.game.level.wave);
-        let damage = monsterHealth / 100000;
+        this.damage = monsterHealth / 10000;
+
+        let damage = this.damage;
 
         let damageMultiplier = 1;
         this.towerBuffs.forEach((buff) => {

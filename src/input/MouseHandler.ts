@@ -62,10 +62,11 @@ export class MouseHandler {
       const tower = this.getTowerInCell(cell);
       if (tower) {
         this.game.selectedTower = tower;
-        console.log(tower);
       } else {
         this.game.selectedTower = null;
       }
+    } else if (this.game.newTower) {
+      this.game.newTower = null;
     }
   }
 
