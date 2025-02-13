@@ -30,6 +30,7 @@ import { Dialog } from "./ui/Dialog";
 import { Button } from "./ui/Button";
 import { getTowerStat } from "../util/getTowerStat";
 import { getTowerUpgradeCost } from "../util/getTowerUpgradeCost";
+import { formatBigNumber } from "../util/formatBigNumber";
 
 export class Game {
   #health: number = 10;
@@ -56,6 +57,7 @@ export class Game {
   completedWaves: Record<number, boolean> = {};
   damageLog: Record<string, number> = { max: 0 };
   dialogs: Dialog[] = [];
+  lastRenderTime = Date.now();
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -217,8 +219,8 @@ export class Game {
         this.level.wave
       }. ${getNumberOfMonstersPerWave(
         this.level.wave
-      )} monsters with ${getMonsterHealth(
-        this.level.wave
+      )} monsters with ${getMonsterHealth(this.level.wave).toLocaleString(
+        "en-US"
       )} health and ${getMonsterSpeed(this.level.wave)} speed`
     );
     this.spawnMonsters();
@@ -288,7 +290,6 @@ export class Game {
       this.money += monster.reward;
       this.killCount++;
     });
-    const length = this.level.monsters.length;
     this.level.monsters = this.level.monsters
       .filter((monster) => {
         return (
@@ -342,6 +343,7 @@ export class Game {
   }
 
   render() {
+    const renderStart = Date.now();
     try {
       this.drawGrid();
       this.level.monsters.forEach((monster) => {
@@ -480,6 +482,25 @@ export class Game {
         alert(`Error rendering game: ${e}`);
       }
     }
+    const renderEnd = Date.now();
+
+    // Draw FPS in debug mode
+    if (this.debug) {
+      this.ctx.save();
+      this.ctx.fillStyle = "black";
+      this.ctx.font = "10px Arial";
+      this.ctx.fillText(
+        `FPS: ${Math.round(1000 / (renderEnd - this.lastRenderTime))}`,
+        10,
+        10
+      );
+      this.ctx.restore();
+      const renderTime = renderEnd - renderStart;
+      if (renderTime > 5) {
+        console.log(`Render time: ${renderEnd - renderStart}ms`);
+      }
+    }
+    this.lastRenderTime = renderEnd;
   }
 
   drawGrid(): void {
@@ -687,18 +708,8 @@ export class Game {
         width: 150,
       });
 
-      const notEnoughMoneyButton = new Button({
-        game: this,
-        text: `${upgradeCost.toLocaleString("en-US")}🪙 (❌)`,
-        position: {
-          ...anchor,
-          x: anchor.x + 25,
-          y: anchor.y + 125,
-        },
-        onClick: () => {},
-        height: 50,
-        width: 150,
-      });
+      const { level } = value;
+      const nextLevel = level + 1;
 
       this.dialogs.push(
         new Dialog({
@@ -707,31 +718,29 @@ export class Game {
           width: dialogWidth,
           position: anchor,
           texts: [
-            `Level ${value.level} -> ${value.level + 1}`,
-            `Damage: ${getTowerStat(
-              value.type,
-              "damage",
-              value.level
-            )} -> ${getTowerStat(value.type, "damage", value.level + 1)}`,
+            `Level ${level} -> ${nextLevel}`,
+            `Damage: ${formatBigNumber(
+              Number(getTowerStat(value.type, "damage", level))
+            )} -> ${formatBigNumber(
+              Number(getTowerStat(value.type, "damage", nextLevel))
+            )}`,
             `Attack Speed: ${getTowerStat(
               value.type,
               "attackSpeed",
-              value.level
-            )} -> ${getTowerStat(value.type, "attackSpeed", value.level + 1)}`,
+              level
+            )} -> ${getTowerStat(value.type, "attackSpeed", nextLevel)}`,
             `Range: ${getTowerStat(
               value.type,
               "range",
-              value.level
-            )} -> ${getTowerStat(value.type, "range", value.level + 1)}`,
+              level
+            )} -> ${getTowerStat(value.type, "range", nextLevel)}`,
             `Splash: ${getTowerStat(
               value.type,
               "splash",
-              value.level
-            )} -> ${getTowerStat(value.type, "splash", value.level + 1)}`,
+              level
+            )} -> ${getTowerStat(value.type, "splash", nextLevel)}`,
           ],
-          buttons: [
-            this.money >= upgradeCost ? upgradeButton : notEnoughMoneyButton,
-          ],
+          buttons: [upgradeButton],
         })
       );
     }

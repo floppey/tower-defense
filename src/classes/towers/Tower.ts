@@ -1,11 +1,6 @@
 import { Buff } from "../../constants/buffs";
 import { Debuff } from "../../constants/debuffs";
-import {
-  prices,
-  TowerStats,
-  towerStats,
-  TowerType,
-} from "../../constants/towers";
+import { prices, towerStats, TowerType } from "../../constants/towers";
 import { Coordinates, GridPosition } from "../../types/types";
 import { getDistanceBetweenGridPositions } from "../../util/getDistanceBetweenGridPositions";
 import { getTowerStat } from "../../util/getTowerStat";
@@ -13,6 +8,7 @@ import { Entity } from "../Entity";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
 import { Arrow } from "../projectiles/Arrow";
+import { Projectile } from "../projectiles/Projectile";
 
 export default class Tower extends Entity {
   game: Game;
@@ -22,7 +18,9 @@ export default class Tower extends Entity {
   baseDamage: number = 60;
   baseRange: number = 4;
   attackSpeed: number = 0.5;
+  projectileSpeed: number;
   lastAttackTime: number = Date.now();
+  lastUpdate: number = Date.now();
   placed: boolean = false;
   type: TowerType = "basic";
   multiTarget: boolean = false;
@@ -30,6 +28,7 @@ export default class Tower extends Entity {
   debuffs: Debuff[] | null = null;
   #towerBuffs: Buff[] = [];
   #level: number = 1;
+  Projectile: typeof Projectile = Arrow;
 
   constructor(game: Game, gridPosition: GridPosition, type: TowerType) {
     super();
@@ -43,6 +42,7 @@ export default class Tower extends Entity {
     this.baseDamage = stats.damage;
     this.attackSpeed = stats.attackSpeed;
     this.splash = stats.splash;
+    this.projectileSpeed = this.game.gameSpeed / 4;
     if (stats.debuff)
       this.debuffs = [
         {
@@ -96,6 +96,49 @@ export default class Tower extends Entity {
         alert(`Error rendering tower ${image}: ${e}`);
       }
     }
+
+    // Draw level icon
+    if (this.level > 1) {
+      // rainbow colors as hex codes
+      const colors = [
+        "#ff0000",
+        "#ff4000",
+        "#ff7f00",
+        "#ffbf00",
+        "#ffff00",
+        "#bfff00",
+        "#7fff00",
+        "#40ff00",
+        "#00ff00",
+        "#00ff40",
+        "#00ff7f",
+        "#00ffbf",
+        "#00ffff",
+        "#00bfff",
+        "#007fff",
+        "#0040ff",
+        "#0000ff",
+        "#4000ff",
+        "#7f00ff",
+        "#bf00ff",
+        "#ff00ff",
+      ];
+      const outOfBounds = this.level > colors.length + 1;
+      this.game.ctx.fillStyle = outOfBounds ? "#000" : colors[this.level - 2];
+      // Draw a circle
+      this.game.ctx.beginPath();
+      this.game.ctx.arc(x + squareSize - 10, y + 10, 8, 0, 2 * Math.PI);
+      this.game.ctx.fill();
+      // Draw level number
+      this.game.ctx.fillStyle = outOfBounds ? "#FFF" : "#000";
+      this.game.ctx.font = "10px Arial";
+      this.game.ctx.textAlign = "center";
+      this.game.ctx.fillText(
+        this.level.toString(),
+        x + squareSize - 10,
+        y + 10
+      );
+    }
   }
 
   update() {
@@ -116,7 +159,13 @@ export default class Tower extends Entity {
   }
 
   getTargetInRange(): Monster | undefined {
-    return this.getTargetsInRange()[0];
+    const { monsters } = this.game.level;
+
+    return (
+      monsters.find((monster) => {
+        return this.monsterIsValidTarget(monster);
+      }) ?? undefined
+    );
   }
 
   getTargetsInRange(): Monster[] {
@@ -129,32 +178,52 @@ export default class Tower extends Entity {
     );
   }
 
+  getTargets(): Monster[] {
+    if (this.multiTarget) {
+      return this.getTargetsInRange();
+    }
+    const target = this.getTargetInRange();
+    return target ? [target] : [];
+  }
+
   canAttack() {
     const currentTime = Date.now();
     const timeSinceLastAttack = currentTime - this.lastAttackTime;
     return timeSinceLastAttack > this.game.gameSpeed / this.attackSpeed;
   }
 
+  getDamage() {
+    return this.damage;
+  }
+
   attack() {
     const currentTime = Date.now();
 
     if (this.canAttack()) {
-      const target = this.getTargetInRange();
-      if (target) {
-        this.game.projectiles.push(
-          new Arrow({
-            game: this.game,
-            target,
-            position: this.game.convertGridPositionToCoordinates(
-              this.gridPosition
-            ),
-            damage: this.damage,
-            speed: this.game.gameSpeed / 4,
-            debuffs: this.debuffs,
-            splash: this.splash,
-            tower: this,
-          })
+      const targets = this.getTargets();
+      if (targets.length > 0) {
+        const timeSinceLastUpdate = currentTime - this.lastUpdate;
+        const attacksInThisFrame = Math.ceil(
+          timeSinceLastUpdate / (this.game.gameSpeed / this.attackSpeed)
         );
+        targets.forEach((target) => {
+          for (let i = 0; i < attacksInThisFrame; i++) {
+            this.game.projectiles.push(
+              new this.Projectile({
+                game: this.game,
+                target,
+                position: this.game.convertGridPositionToCoordinates(
+                  this.gridPosition
+                ),
+                damage: this.getDamage(),
+                speed: this.projectileSpeed,
+                debuffs: this.debuffs,
+                splash: this.splash,
+                tower: this,
+              })
+            );
+          }
+        });
         // Add a random delay to the next attack
         this.lastAttackTime =
           currentTime +
@@ -162,6 +231,7 @@ export default class Tower extends Entity {
             this.game.gameSpeed;
       }
     }
+    this.lastUpdate = currentTime;
   }
 
   onSell() {

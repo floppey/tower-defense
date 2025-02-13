@@ -9,7 +9,12 @@ export const getTowerStat = (
     throw new Error("Level must be 1 or greater");
   }
 
-  const baseValue = towerStats[type][stat];
+  let baseValue = towerStats[type][stat];
+
+  // Special case for mage tower splash at level 10
+  if (type === "mage" && level >= 10 && stat === "splash") {
+    baseValue = 0.5;
+  }
 
   if (typeof baseValue !== "number" || level === 1) {
     return baseValue ?? null;
@@ -31,23 +36,26 @@ const getMultiplier = (
         const rangeMultiplier = level;
         return rangeMultiplier;
       }
+      if (["ice"].includes(type)) {
+        return 1;
+      }
       const rangeMultiplier = Math.round(Math.pow(1.1, level - 1));
       return rangeMultiplier;
     case "damage":
-      const levelMultiplier = Math.round(Math.pow(1.5, level - 1));
+      if (["ice"].includes(type)) {
+        const levelMultiplier = Math.round(Math.pow(1.05, level));
+        return levelMultiplier;
+      }
+      const levelMultiplier = Math.round(Math.pow(1.5, level));
 
       return levelMultiplier;
     case "attackSpeed":
-      if (["basic", "arrow", "mage"].includes(type)) {
+      if (["basic", "arrow", "ice", "mage"].includes(type)) {
         const levelMultiplier = Math.pow(1.1, level - 1);
         return levelMultiplier;
       }
       if (["fire", "lightning", "cannon"].includes(type)) {
         const levelMultiplier = Math.pow(1.05, level - 1);
-        return levelMultiplier;
-      }
-      if (["ice"].includes(type)) {
-        const levelMultiplier = Math.pow(1.25, level - 1);
         return levelMultiplier;
       }
       return 1;
@@ -56,7 +64,7 @@ const getMultiplier = (
         const levelMultiplier = Math.pow(1.1, level - 1);
         return levelMultiplier;
       }
-      if (["ice", "fire"].includes(type)) {
+      if (["mage", "fire"].includes(type)) {
         const levelMultiplier = Math.pow(1.05, level - 1);
         return levelMultiplier;
       }
