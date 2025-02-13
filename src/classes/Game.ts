@@ -446,7 +446,7 @@ export class Game {
           this.ctx.fillText("Damage: ", this.canvas.width - 180, y);
           this.ctx.textAlign = "right";
           this.ctx.fillText(
-            Math.round(this.selectedTower.damage).toLocaleString("en-US"),
+            formatBigNumber(this.selectedTower.damage),
             this.canvas.width - 20,
             y
           );
@@ -464,9 +464,9 @@ export class Game {
           this.ctx.fillText("DPS: ", this.canvas.width - 180, y);
           this.ctx.textAlign = "right";
           this.ctx.fillText(
-            Math.round(
+            formatBigNumber(
               this.selectedTower.damage * this.selectedTower.attackSpeed
-            ).toLocaleString("en-US"),
+            ),
             this.canvas.width - 20,
             y
           );
@@ -743,7 +743,7 @@ export class Game {
             )} -> ${formatBigNumber(
               Number(getTowerStat(value.type, "damage", nextLevel))
             )}`,
-            `Attack Speed: ${getTowerStat(
+            `Speed: ${getTowerStat(
               value.type,
               "attackSpeed",
               level

@@ -1,8 +1,9 @@
 import { Buff } from "../../constants/buffs";
 import { Debuff } from "../../constants/debuffs";
-import { prices, towerStats, TowerType } from "../../constants/towers";
+import { towerStats, TowerType } from "../../constants/towers";
 import { Coordinates, GridPosition } from "../../types/types";
 import { getDistanceBetweenGridPositions } from "../../util/getDistanceBetweenGridPositions";
+import { getTowerSellPrice } from "../../util/getTowerSellPrice";
 import { getTowerStat } from "../../util/getTowerStat";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
@@ -190,7 +191,8 @@ export default class Tower extends Entity {
   canAttack() {
     const currentTime = Date.now();
     const timeSinceLastAttack = currentTime - this.lastAttackTime;
-    return timeSinceLastAttack > this.game.gameSpeed / this.attackSpeed;
+    const attackInterval = this.game.gameSpeed / this.attackSpeed;
+    return timeSinceLastAttack > attackInterval;
   }
 
   getDamage() {
@@ -204,9 +206,13 @@ export default class Tower extends Entity {
       const targets = this.getTargets();
       if (targets.length > 0) {
         const timeSinceLastUpdate = currentTime - this.lastUpdate;
-        const attacksInThisFrame = Math.ceil(
-          timeSinceLastUpdate / (this.game.gameSpeed / this.attackSpeed)
+        const attacksInThisFrame = Math.max(
+          1,
+          Math.floor(
+            timeSinceLastUpdate / (this.game.gameSpeed / this.attackSpeed)
+          )
         );
+
         targets.forEach((target) => {
           for (let i = 0; i < attacksInThisFrame; i++) {
             this.game.projectiles.push(
@@ -225,18 +231,14 @@ export default class Tower extends Entity {
             );
           }
         });
-        // Add a random delay to the next attack
-        this.lastAttackTime =
-          currentTime +
-          (this.attackSpeed * (Math.random() * 0.025) - 0.0125) *
-            this.game.gameSpeed;
+        this.lastAttackTime = currentTime;
       }
     }
     this.lastUpdate = currentTime;
   }
 
   onSell() {
-    this.game.money += prices[this.type] / 2;
+    this.game.money += getTowerSellPrice(this);
   }
 
   addBuff(buff: Buff) {

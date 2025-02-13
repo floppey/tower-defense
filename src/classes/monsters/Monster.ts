@@ -98,22 +98,25 @@ export default class Monster extends Entity {
 
     const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
     const damageFactor = timeSinceLastUpdate / this.game.gameSpeed;
-    const isPoisoned = this.debuffs.some((debuff) => debuff.type === "poison");
+    const isPoisoned = this.isPoisoned();
     const numberOfFreezes = this.debuffs.filter(
       (debuff) => debuff.type === "freeze"
     ).length;
+
     if (numberOfFreezes > 0) {
       // Halve the speed of the monster if it is frozen, stacking up to two times
-      this.speed = Math.max(speed / (2 * numberOfFreezes), this.#baseSpeed / 4);
-    } else {
-      this.speed = speed;
+      speed = Math.max(speed / (2 * numberOfFreezes), this.#baseSpeed / 4);
     }
+
     // Deal 0.5% of the monster's max health as damage every second if it is poisoned
     if (isPoisoned) {
       const damagePersecond = this.maxHealth * 0.005;
       const poisonDamage = damageFactor * damagePersecond;
       this.takeDamage(poisonDamage, "poison");
+      speed *= 0.75;
     }
+
+    this.speed = speed;
 
     // Add all burn debuffs together and combine them into one debuff with the longest duration
     const burns = this.debuffs.filter((debuff) => debuff.type === "burn");

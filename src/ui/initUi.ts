@@ -69,6 +69,7 @@ export const initUi = (game: Game) => {
     `;
     towerButton.addEventListener("click", () => {
       game.newTower = tower;
+      game.selectedTower = null;
     });
     toolbarBottom.appendChild(towerButton);
   });

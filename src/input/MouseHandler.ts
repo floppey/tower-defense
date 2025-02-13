@@ -3,6 +3,7 @@ import Tower from "../classes/towers/Tower";
 import { TOWER_CELL, UNSET_CELL } from "../constants/mapMatrixConstants";
 import { prices, TowerClasses } from "../constants/towers";
 import { Coordinates, GridPosition } from "../types/types";
+import { getTowerSellPrice } from "../util/getTowerSellPrice";
 
 export class MouseHandler {
   game: Game;
@@ -96,7 +97,7 @@ export class MouseHandler {
       const tower = this.getTowerInCell(cell);
       if (tower) {
         this.game.paused = true;
-        if (confirm(`Sell for ${prices[tower.type] / 2} coins?`)) {
+        if (confirm(`Sell for ${getTowerSellPrice(tower)} coins?`)) {
           this.game.level.towers = this.game.level.towers.filter(
             (t) => t.id !== tower.id
           );

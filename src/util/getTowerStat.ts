@@ -11,6 +11,16 @@ export const getTowerStat = (
 
   let baseValue = towerStats[type][stat];
 
+  if (stat === "range") {
+    if (["ice"].includes(type)) {
+      return baseValue;
+    }
+    if (["support-range", "support-damage"].includes(type)) {
+      return Number(baseValue) + level;
+    }
+    return Number(baseValue) + Math.floor(level / 3);
+  }
+
   // Special case for mage tower splash at level 10
   if (type === "mage" && level >= 10 && stat === "splash") {
     baseValue = 0.5;
@@ -41,16 +51,16 @@ const getMultiplier = (
   level: number
 ): number => {
   switch (stat) {
-    case "range":
-      if (["support-range", "support-damage"].includes(type)) {
-        const rangeMultiplier = level;
-        return rangeMultiplier;
-      }
-      if (["ice"].includes(type)) {
-        return 1;
-      }
-      const rangeMultiplier = Math.round(Math.pow(1.1, level - 1));
-      return rangeMultiplier;
+    // case "range":
+    // if (["support-range", "support-damage"].includes(type)) {
+    //   const rangeMultiplier = level;
+    //   return rangeMultiplier;
+    // }
+    // if (["ice"].includes(type)) {
+    //   return 1;
+    // }
+    // const rangeMultiplier = Math.round(Math.pow(1.1, level ));
+    // return rangeMultiplier;
     case "damage":
       if (["ice"].includes(type)) {
         const levelMultiplier = Math.round(Math.pow(1.05, level));

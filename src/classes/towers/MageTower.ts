@@ -8,6 +8,6 @@ export class MageTower extends Tower {
 
   constructor(game: Game, gridPosition: GridPosition) {
     super(game, gridPosition, "mage");
-    this.projectileSpeed = this.game.gameSpeed;
+    this.projectileSpeed = this.game.gameSpeed * 2;
   }
 }
