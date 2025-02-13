@@ -31,6 +31,7 @@ import { Button } from "./ui/Button";
 import { getTowerStat } from "../util/getTowerStat";
 import { getTowerUpgradeCost } from "../util/getTowerUpgradeCost";
 import { formatBigNumber } from "../util/formatBigNumber";
+import { timeFunction } from "../util/timeFunction";
 
 export class Game {
   #health: number = 10;
@@ -276,231 +277,249 @@ export class Game {
   }
 
   update() {
-    if (this.#paused) {
-      return;
-    }
-    const monstersInEnd = this.level.monsters.filter(
-      (monster) =>
-        monster.distance >= this.level.mapMatrix.totalDistances[monster.path]
-    );
-    const deadMonsters = this.level.monsters.filter(
-      (monster) => !monster.isAlive()
-    );
-    deadMonsters.forEach((monster) => {
-      this.money += monster.reward;
-      this.killCount++;
-    });
-    this.level.monsters = this.level.monsters
-      .filter((monster) => {
-        return (
-          monster.isAlive() &&
-          monster.distance < this.level.mapMatrix.totalDistances[monster.path]
-        );
-      })
-      .sort((a, b) => b.distance - a.distance);
-
-    monstersInEnd.forEach((monster) => {
-      console.log(`Monster reached the end, -${monster.damage} health`);
-      this.health -= monster.damage;
-    });
-    this.level.monsters.forEach((monster) => {
-      monster.update();
-    });
-    this.level.towers.forEach((tower) => {
-      tower.update();
-    });
-    this.projectiles.forEach((projectile) => {
-      projectile.update();
-    });
-    if (this.#health < 0) {
-      if (confirm("Game Over! Play again?")) {
-        window.location.reload();
+    timeFunction("update game", () => {
+      if (this.#paused) {
+        return;
       }
-    }
-    if (deadMonsters.length > 0 || monstersInEnd.length > 0) {
-      updateMonsterCount(this.level.monsters.length);
-    }
-    if (
-      this.canStartWave() &&
-      this.level.monsters.length === 0 &&
-      this.completedWaves[this.level.wave] !== true
-    ) {
-      this.completedWaves[this.level.wave] = true;
-      console.log(`Wave ${this.level.wave} completed!`);
-      console.log("*** DAMAGE LOG ***");
-      Object.keys(this.damageLog).forEach((key) => {
-        console.log(
-          `${key}: ${Math.round(this.damageLog[key]).toLocaleString()}`
-        );
+      const monstersInEnd = this.level.monsters.filter(
+        (monster) =>
+          monster.distance >= this.level.mapMatrix.totalDistances[monster.path]
+      );
+      const deadMonsters = this.level.monsters.filter(
+        (monster) => !monster.isAlive()
+      );
+      deadMonsters.forEach((monster) => {
+        this.money += monster.reward;
+        this.killCount++;
       });
-      const autoStart = (
-        document.getElementById("automode") as HTMLInputElement
-      )?.checked;
-      if (autoStart) {
-        this.startWave();
+      this.level.monsters = this.level.monsters
+        .filter((monster) => {
+          return (
+            monster.isAlive() &&
+            monster.distance < this.level.mapMatrix.totalDistances[monster.path]
+          );
+        })
+        .sort((a, b) => b.distance - a.distance);
+
+      monstersInEnd.forEach((monster) => {
+        console.log(`Monster reached the end, -${monster.damage} health`);
+        this.health -= monster.damage;
+      });
+      timeFunction("update monsters", () => {
+        this.level.monsters.forEach((monster) => {
+          monster.update();
+        });
+      });
+      timeFunction("update towers", () => {
+        this.level.towers.forEach((tower) => {
+          tower.update();
+        });
+      });
+      timeFunction("update projectiles", () => {
+        this.projectiles.forEach((projectile) => {
+          projectile.update();
+        });
+      });
+      if (this.#health < 0) {
+        if (confirm("Game Over! Play again?")) {
+          window.location.reload();
+        }
       }
-    }
+      if (deadMonsters.length > 0 || monstersInEnd.length > 0) {
+        updateMonsterCount(this.level.monsters.length);
+      }
+      if (
+        this.canStartWave() &&
+        this.level.monsters.length === 0 &&
+        this.completedWaves[this.level.wave] !== true
+      ) {
+        this.completedWaves[this.level.wave] = true;
+        console.log(`Wave ${this.level.wave} completed!`);
+        console.log("*** DAMAGE LOG ***");
+        Object.keys(this.damageLog).forEach((key) => {
+          console.log(
+            `${key}: ${Math.round(this.damageLog[key]).toLocaleString()}`
+          );
+        });
+        const autoStart = (
+          document.getElementById("automode") as HTMLInputElement
+        )?.checked;
+        if (autoStart) {
+          this.startWave();
+        }
+      }
+    });
   }
 
   render() {
-    const renderStart = Date.now();
-    try {
-      this.drawGrid();
-      this.level.monsters.forEach((monster) => {
-        monster.render();
-      });
-      this.level.towers.forEach((tower) => {
-        tower.render();
-      });
-      this.projectiles.forEach((projectile) => {
-        projectile.render();
-      });
-      if (this.#health <= 0) {
-        this.ctx.save();
-        this.ctx.fillStyle = "red";
-        this.ctx.font = "30px Arial";
-        this.ctx.textAlign = "center";
-        this.ctx.fillText(
-          "Game Over!",
-          this.canvas.width / 2,
-          this.canvas.height / 1.5
-        );
-        this.ctx.restore();
+    timeFunction("render game", () => {
+      const renderStart = Date.now();
+      try {
+        timeFunction("draw grid", () => {
+          this.drawGrid();
+        });
+        timeFunction("draw monsters", () => {
+          this.level.monsters.forEach((monster) => {
+            monster.render();
+          });
+        });
+        timeFunction("draw towers", () => {
+          this.level.towers.forEach((tower) => {
+            tower.render();
+          });
+        });
+        timeFunction("draw projectiles", () => {
+          this.projectiles.forEach((projectile) => {
+            projectile.render();
+          });
+        });
+        if (this.#health <= 0) {
+          this.ctx.save();
+          this.ctx.fillStyle = "red";
+          this.ctx.font = "30px Arial";
+          this.ctx.textAlign = "center";
+          this.ctx.fillText(
+            "Game Over!",
+            this.canvas.width / 2,
+            this.canvas.height / 1.5
+          );
+          this.ctx.restore();
+        }
+        if (this.#newTower && this.hoveredCell) {
+          this.ctx.save();
+          this.ctx.globalAlpha = 0.25;
+          // Draw a circle indicating the tower's range
+          this.ctx.beginPath();
+          this.ctx.arc(
+            this.hoveredCell.col * this.squareSize + this.squareSize / 2,
+            this.hoveredCell.row * this.squareSize + this.squareSize / 2,
+            this.#newTower.range * this.squareSize,
+            0,
+            2 * Math.PI
+          );
+          this.ctx.fillStyle = "purple";
+          this.ctx.globalAlpha = 0.5;
+          this.#newTower.gridPosition = this.hoveredCell!;
+          this.#newTower.render();
+
+          this.ctx.fill();
+
+          this.ctx.restore();
+        }
+
+        if (this.selectedTower) {
+          const { col, row } = this.selectedTower.gridPosition;
+
+          this.ctx.save();
+          this.ctx.globalAlpha = 0.25;
+          // Draw a circle indicating the tower's range
+          this.ctx.beginPath();
+          this.ctx.arc(
+            col * this.squareSize + this.squareSize / 2,
+            row * this.squareSize + this.squareSize / 2,
+            this.selectedTower.range * this.squareSize,
+            0,
+            2 * Math.PI
+          );
+          this.ctx.fillStyle = "blue";
+          this.ctx.globalAlpha = 0.35;
+          this.ctx.fill();
+          this.ctx.restore();
+
+          // Show tower stats
+          let y = 0;
+          this.ctx.save();
+          this.ctx.fillStyle = "black";
+          this.ctx.fillRect(this.canvas.width - 200, y, 200, 140);
+          y += 20;
+
+          this.ctx.fillStyle = "white";
+          this.ctx.font = "16px Arial";
+          this.ctx.textAlign = "center";
+          this.ctx.fillText(
+            `${this.selectedTower.type} tower`,
+            this.canvas.width - 100,
+            y
+          );
+          y += 20;
+          this.ctx.textAlign = "left";
+          this.ctx.fillText("Damage: ", this.canvas.width - 180, y);
+          this.ctx.textAlign = "right";
+          this.ctx.fillText(
+            Math.round(this.selectedTower.damage).toLocaleString("en-US"),
+            this.canvas.width - 20,
+            y
+          );
+          y += 20;
+          this.ctx.textAlign = "left";
+          this.ctx.fillText("Speed: ", this.canvas.width - 180, y);
+          this.ctx.textAlign = "right";
+          this.ctx.fillText(
+            this.selectedTower.attackSpeed.toLocaleString("en-US"),
+            this.canvas.width - 20,
+            y
+          );
+          y += 20;
+          this.ctx.textAlign = "left";
+          this.ctx.fillText("DPS: ", this.canvas.width - 180, y);
+          this.ctx.textAlign = "right";
+          this.ctx.fillText(
+            Math.round(
+              this.selectedTower.damage * this.selectedTower.attackSpeed
+            ).toLocaleString("en-US"),
+            this.canvas.width - 20,
+            y
+          );
+          y += 20;
+          this.ctx.textAlign = "left";
+          this.ctx.fillText("Range: ", this.canvas.width - 180, y);
+          this.ctx.textAlign = "right";
+          this.ctx.fillText(
+            Math.round(this.selectedTower.range).toLocaleString("en-US"),
+            this.canvas.width - 20,
+            y
+          );
+          y += 20;
+          this.ctx.textAlign = "left";
+          this.ctx.fillText("Splash: ", this.canvas.width - 180, y);
+          this.ctx.textAlign = "right";
+          this.ctx.fillText(
+            this.selectedTower.splash
+              ? this.selectedTower.splash.toLocaleString("en-US")
+              : "❌",
+            this.canvas.width - 20,
+            y
+          );
+          this.ctx.restore();
+        }
+
+        this.dialogs.forEach((dialog) => dialog.draw());
+      } catch (e) {
+        console.error(e);
+        if (this.debug) {
+          alert(`Error rendering game: ${e}`);
+        }
       }
-      if (this.#newTower && this.hoveredCell) {
-        this.ctx.save();
-        this.ctx.globalAlpha = 0.25;
-        // Draw a circle indicating the tower's range
-        this.ctx.beginPath();
-        this.ctx.arc(
-          this.hoveredCell.col * this.squareSize + this.squareSize / 2,
-          this.hoveredCell.row * this.squareSize + this.squareSize / 2,
-          this.#newTower.range * this.squareSize,
-          0,
-          2 * Math.PI
-        );
-        this.ctx.fillStyle = "purple";
-        this.ctx.globalAlpha = 0.5;
-        this.#newTower.gridPosition = this.hoveredCell!;
-        this.#newTower.render();
+      const renderEnd = Date.now();
 
-        this.ctx.fill();
-
-        this.ctx.restore();
-      }
-
-      if (this.selectedTower) {
-        const { col, row } = this.selectedTower.gridPosition;
-
-        this.ctx.save();
-        this.ctx.globalAlpha = 0.25;
-        // Draw a circle indicating the tower's range
-        this.ctx.beginPath();
-        this.ctx.arc(
-          col * this.squareSize + this.squareSize / 2,
-          row * this.squareSize + this.squareSize / 2,
-          this.selectedTower.range * this.squareSize,
-          0,
-          2 * Math.PI
-        );
-        this.ctx.fillStyle = "blue";
-        this.ctx.globalAlpha = 0.35;
-        this.ctx.fill();
-        this.ctx.restore();
-
-        // Show tower stats
-        let y = 0;
+      // Draw FPS in debug mode
+      if (this.debug) {
         this.ctx.save();
         this.ctx.fillStyle = "black";
-        this.ctx.fillRect(this.canvas.width - 200, y, 200, 140);
-        y += 20;
-
-        this.ctx.fillStyle = "white";
-        this.ctx.font = "16px Arial";
-        this.ctx.textAlign = "center";
+        this.ctx.font = "10px Arial";
         this.ctx.fillText(
-          `${this.selectedTower.type} tower`,
-          this.canvas.width - 100,
-          y
-        );
-        y += 20;
-        this.ctx.textAlign = "left";
-        this.ctx.fillText("Damage: ", this.canvas.width - 180, y);
-        this.ctx.textAlign = "right";
-        this.ctx.fillText(
-          Math.round(this.selectedTower.damage).toLocaleString("en-US"),
-          this.canvas.width - 20,
-          y
-        );
-        y += 20;
-        this.ctx.textAlign = "left";
-        this.ctx.fillText("Speed: ", this.canvas.width - 180, y);
-        this.ctx.textAlign = "right";
-        this.ctx.fillText(
-          this.selectedTower.attackSpeed.toLocaleString("en-US"),
-          this.canvas.width - 20,
-          y
-        );
-        y += 20;
-        this.ctx.textAlign = "left";
-        this.ctx.fillText("DPS: ", this.canvas.width - 180, y);
-        this.ctx.textAlign = "right";
-        this.ctx.fillText(
-          Math.round(
-            this.selectedTower.damage * this.selectedTower.attackSpeed
-          ).toLocaleString("en-US"),
-          this.canvas.width - 20,
-          y
-        );
-        y += 20;
-        this.ctx.textAlign = "left";
-        this.ctx.fillText("Range: ", this.canvas.width - 180, y);
-        this.ctx.textAlign = "right";
-        this.ctx.fillText(
-          Math.round(this.selectedTower.range).toLocaleString("en-US"),
-          this.canvas.width - 20,
-          y
-        );
-        y += 20;
-        this.ctx.textAlign = "left";
-        this.ctx.fillText("Splash: ", this.canvas.width - 180, y);
-        this.ctx.textAlign = "right";
-        this.ctx.fillText(
-          this.selectedTower.splash
-            ? this.selectedTower.splash.toLocaleString("en-US")
-            : "❌",
-          this.canvas.width - 20,
-          y
+          `FPS: ${Math.round(1000 / (renderEnd - this.lastRenderTime))}`,
+          10,
+          10
         );
         this.ctx.restore();
+        const renderTime = renderEnd - renderStart;
+        if (renderTime > 5) {
+          console.log(`Render time: ${renderEnd - renderStart}ms`);
+        }
       }
-
-      this.dialogs.forEach((dialog) => dialog.draw());
-    } catch (e) {
-      console.error(e);
-      if (this.debug) {
-        alert(`Error rendering game: ${e}`);
-      }
-    }
-    const renderEnd = Date.now();
-
-    // Draw FPS in debug mode
-    if (this.debug) {
-      this.ctx.save();
-      this.ctx.fillStyle = "black";
-      this.ctx.font = "10px Arial";
-      this.ctx.fillText(
-        `FPS: ${Math.round(1000 / (renderEnd - this.lastRenderTime))}`,
-        10,
-        10
-      );
-      this.ctx.restore();
-      const renderTime = renderEnd - renderStart;
-      if (renderTime > 5) {
-        console.log(`Render time: ${renderEnd - renderStart}ms`);
-      }
-    }
-    this.lastRenderTime = renderEnd;
+      this.lastRenderTime = renderEnd;
+    });
   }
 
   drawGrid(): void {

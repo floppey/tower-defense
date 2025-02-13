@@ -17,7 +17,7 @@ if (builder) {
   const updateLoop = async () => {
     game.update();
     if (game.health >= 0) {
-      requestAnimationFrame(updateLoop);
+      setTimeout(updateLoop, 1000 / 240);
     }
   };
 
