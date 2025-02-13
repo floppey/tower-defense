@@ -16,6 +16,16 @@ export const getTowerStat = (
     baseValue = 0.5;
   }
 
+  // Special case for fire tower multi target at level 10
+  if (type === "fire" && level >= 10 && stat === "multiTarget") {
+    baseValue = true;
+  }
+
+  // Special case for cannon tower damage at level 10
+  if (type === "cannon" && level >= 10 && stat === "damage") {
+    baseValue = towerStats.cannon.damage * 50;
+  }
+
   if (typeof baseValue !== "number" || level === 1) {
     return baseValue ?? null;
   }

@@ -122,6 +122,7 @@ export const initUi = (game: Game) => {
     <th>DPS</th>
     <th>Range</th>
     <th>Splash</th>
+    <th>Multi target</th>
     <th>Debuff</th>
     <th>Special</th>
   </tr>
@@ -137,6 +138,7 @@ export const initUi = (game: Game) => {
       <td>${stats.damage * stats.attackSpeed}</td>
       <td>${stats.range}</td>
       <td>${stats.splash || "❌"}</td>
+      <td>${stats.multiTarget ? "✅" : "❌"}</td>
       <td>${
         stats.debuff ? `${stats.debuff} (${stats.debuffDuration}s)` : "❌"
       }</td>

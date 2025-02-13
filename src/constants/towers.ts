@@ -42,6 +42,7 @@ export type TowerStats = {
   damage: number;
   attackSpeed: number;
   splash: number;
+  multiTarget: boolean;
   debuff: DebuffType | null;
   debuffDuration?: number;
   special?: string;
@@ -54,6 +55,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
     attackSpeed: 0.5,
     splash: 0,
     debuff: null,
+    multiTarget: false,
   },
   arrow: {
     range: 5,
@@ -61,6 +63,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
     attackSpeed: 1,
     splash: 0,
     debuff: null,
+    multiTarget: false,
   },
   cannon: {
     range: 5,
@@ -68,12 +71,14 @@ export const towerStats: Record<TowerType, TowerStats> = {
     attackSpeed: 0.5,
     splash: 1.5,
     debuff: null,
+    multiTarget: false,
   },
   fire: {
     range: 5,
     damage: 500,
     attackSpeed: 1,
     splash: 0.75,
+    multiTarget: false,
     debuff: null,
     special:
       "20% chance to crit. Critical hits deal double damage and applies a potentially infinitely scaling burn debuff",
@@ -83,6 +88,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
     damage: 50,
     attackSpeed: 1,
     splash: 1,
+    multiTarget: false,
     debuff: "freeze",
     debuffDuration: 2,
     special: "Slows enemies by 50%. Can stack two times.",
@@ -92,6 +98,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
     damage: 5000,
     attackSpeed: 3,
     splash: 0,
+    multiTarget: false,
     debuff: null,
   },
   lightning: {
@@ -100,6 +107,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
     attackSpeed: 1,
     splash: 0,
     debuff: null,
+    multiTarget: false,
     special:
       "Deals random damage. With a good deal of luck it can oneshot any monster. Lightning also chains to nearby enemies",
   },
@@ -108,6 +116,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
     damage: 0,
     attackSpeed: 1,
     splash: 0,
+    multiTarget: true,
     debuff: "poison",
     debuffDuration: 10,
     special: "Poison deals 0.5% of the target's max health per second",
@@ -118,6 +127,7 @@ export const towerStats: Record<TowerType, TowerStats> = {
     attackSpeed: 0,
     splash: 0,
     debuff: null,
+    multiTarget: false,
     special: "Increases damage of nearby towers by 50%",
   },
   // "support-range": {

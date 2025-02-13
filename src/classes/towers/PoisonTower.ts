@@ -4,7 +4,6 @@ import { Poison } from "../projectiles/Poison";
 import Tower from "./Tower";
 
 export class PoisonTower extends Tower {
-  multiTarget = true;
   Projectile = Poison;
 
   constructor(game: Game, gridPosition: GridPosition) {

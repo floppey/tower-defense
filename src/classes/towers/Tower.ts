@@ -42,6 +42,7 @@ export default class Tower extends Entity {
     this.baseDamage = stats.damage;
     this.attackSpeed = stats.attackSpeed;
     this.splash = stats.splash;
+    this.multiTarget = stats.multiTarget;
     this.projectileSpeed = this.game.gameSpeed / 4;
     if (stats.debuff)
       this.debuffs = [
@@ -277,6 +278,7 @@ export default class Tower extends Entity {
     this.attackSpeed = Number(getTowerStat(this.type, "attackSpeed", level));
     const splash = getTowerStat(this.type, "splash", level);
     this.splash = typeof splash === "number" ? splash : null;
+    this.multiTarget = Boolean(getTowerStat(this.type, "multiTarget", level));
 
     // Reapply buffs
     this.towerBuffs = this.towerBuffs;
