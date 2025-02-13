@@ -23,4 +23,12 @@ if (builder) {
 
   renderLoop();
   updateLoop();
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      game.paused = true;
+    } else {
+      game.paused = false;
+    }
+  });
 }
