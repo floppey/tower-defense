@@ -44,6 +44,13 @@ export class MouseHandler {
 
   handleClick() {
     const cell = this.getCellAtMousePosition();
+    let clicked = false;
+    this.game.dialogs?.forEach((dialog) => {
+      dialog.buttons?.forEach((button) => {
+        clicked = clicked || button.handleClick(this.mousePosition);
+      });
+    });
+    if (clicked) return;
     if (
       this.game.newTower &&
       this.game.level.mapMatrix.matrix[cell.col][cell.row] === UNSET_CELL

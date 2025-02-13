@@ -16,10 +16,10 @@ This project is a Tower Defense game where players strategically place towers to
 - Multiple tower types with different abilities
 - User-friendly interface with intuitive controls
 - Map builder
+- Upgrade towers
 
 ## Planned features
 
-- Upgrade towers
 - Various enemy types with unique strengths and weaknesses
 - More maps
 

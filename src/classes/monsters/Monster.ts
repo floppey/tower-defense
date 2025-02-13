@@ -349,6 +349,7 @@ export default class Monster extends Entity {
       this.game.damageLog[source] = 0;
     }
     this.game.damageLog[source] += Math.min(amount, this.health);
+    this.game.damageLog["max"] = Math.max(this.game.damageLog["max"], amount);
 
     this.health -= amount;
     if (this.health < 0) {

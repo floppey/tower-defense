@@ -1,8 +1,14 @@
 import { Buff } from "../../constants/buffs";
 import { Debuff } from "../../constants/debuffs";
-import { prices, towerStats, TowerType } from "../../constants/towers";
-import { GridPosition } from "../../types/types";
+import {
+  prices,
+  TowerStats,
+  towerStats,
+  TowerType,
+} from "../../constants/towers";
+import { Coordinates, GridPosition } from "../../types/types";
 import { getDistanceBetweenGridPositions } from "../../util/getDistanceBetweenGridPositions";
+import { getTowerStat } from "../../util/getTowerStat";
 import { Entity } from "../Entity";
 import { Game } from "../Game";
 import Monster from "../monsters/Monster";
@@ -23,6 +29,7 @@ export default class Tower extends Entity {
   splash: number | null = null;
   debuffs: Debuff[] | null = null;
   #towerBuffs: Buff[] = [];
+  #level: number = 1;
 
   constructor(game: Game, gridPosition: GridPosition, type: TowerType) {
     super();
@@ -68,11 +75,17 @@ export default class Tower extends Entity {
     return image;
   }
 
-  render() {
+  getCanvasPosition(): Coordinates {
     const { squareSize } = this.game;
     const { col, row } = this.gridPosition;
     const x = col * squareSize;
     const y = row * squareSize;
+    return { x, y };
+  }
+
+  render() {
+    const { squareSize } = this.game;
+    const { x, y } = this.getCanvasPosition();
 
     const image = this.getImage();
     try {
@@ -182,5 +195,20 @@ export default class Tower extends Entity {
     });
     this.damage = this.baseDamage * damageMultiplier;
     this.range = this.baseRange * rangeMultiplier;
+  }
+
+  get level() {
+    return this.#level;
+  }
+  set level(level: number) {
+    this.#level = level;
+    this.baseDamage = Number(getTowerStat(this.type, "damage", level));
+    this.baseRange = Number(getTowerStat(this.type, "range", level));
+    this.attackSpeed = Number(getTowerStat(this.type, "attackSpeed", level));
+    const splash = getTowerStat(this.type, "splash", level);
+    this.splash = typeof splash === "number" ? splash : null;
+
+    // Reapply buffs
+    this.towerBuffs = this.towerBuffs;
   }
 }

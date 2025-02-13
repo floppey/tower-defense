@@ -150,24 +150,4 @@ export const initUi = (game: Game) => {
   `;
 
   document.body.appendChild(towerTable);
-
-  const upgradeTower = document.createElement("div");
-  upgradeTower.id = "upgrade-tower";
-  upgradeTower.innerHTML = `
-  <h2>Upgrade Tower</h2>
-`;
-  upgradeTower.style.display = "none";
-  ["damage", "range", "speed"].forEach((stat) => {
-    const button = document.createElement("button");
-    button.innerHTML = `${stat}`;
-    button.addEventListener("click", () => {
-      game.upgradeTower(stat);
-    });
-    upgradeTower.appendChild(button);
-  });
-
-  document.body.appendChild(upgradeTower);
-
-  const marginFix = document.createElement("div");
-  document.body.appendChild(marginFix);
 };

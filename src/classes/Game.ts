@@ -3,7 +3,7 @@ import {
   START_CELL,
   UNSET_CELL,
 } from "../constants/mapMatrixConstants";
-import { TowerClasses, TowerType } from "../constants/towers";
+import { prices, TowerClasses, TowerType } from "../constants/towers";
 import { MouseHandler } from "../input/MouseHandler";
 import { spiralMap } from "../maps/spiralMap";
 import { Coordinates, GridPosition } from "../types/types";
@@ -26,6 +26,10 @@ import { getMonsterHealth } from "../util/getMonsterHealth";
 import { isBossWave } from "../util/isBossWave";
 import { getMonsterReward } from "../util/getMonsterReward";
 import { getNumberOfMonstersPerWave } from "../util/getNumberOfMonstersPerWave";
+import { Dialog } from "./ui/Dialog";
+import { Button } from "./ui/Button";
+import { getTowerStat } from "../util/getTowerStat";
+import { getTowerUpgradeCost } from "../util/getTowerUpgradeCost";
 
 export class Game {
   #health: number = 10;
@@ -45,12 +49,13 @@ export class Game {
   tempCounter = -1;
   projectiles: Projectile[] = [];
   #newTower: Tower | null = null;
-  selectedTower: Tower | null = null;
+  #selectedTower: Tower | null = null;
   #paused = false;
   gameSpeed = 1000;
   backgroundImage: HTMLCanvasElement | null = null;
   completedWaves: Record<number, boolean> = {};
-  damageLog: Record<string, number> = {};
+  damageLog: Record<string, number> = { max: 0 };
+  dialogs: Dialog[] = [];
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -467,6 +472,8 @@ export class Game {
         );
         this.ctx.restore();
       }
+
+      this.dialogs.forEach((dialog) => dialog.draw());
     } catch (e) {
       console.error(e);
       if (this.debug) {
@@ -599,17 +606,11 @@ export class Game {
     };
   }
 
-  upgradeTower(stat: string) {
-    switch (stat) {
-      case "damage":
-        console.log("TODO: Implement damage upgrade");
-        break;
-      case "range":
-        console.log("TODO: Implement range upgrade");
-        break;
-      case "speed":
-        console.log("TODO: Implement speed upgrade");
-        break;
+  upgradeTower(tower: Tower) {
+    if (this.money >= getTowerUpgradeCost(tower)) {
+      this.money -= getTowerUpgradeCost(tower);
+      tower.level++;
+      this.selectedTower = tower;
     }
   }
 
@@ -644,6 +645,96 @@ export class Game {
     this.#newTower = value
       ? new TowerClasses[value](this, this.hoveredCell!, "basic")
       : null;
+  }
+
+  get selectedTower(): Tower | null {
+    return this.#selectedTower;
+  }
+  set selectedTower(value: Tower | null) {
+    this.#selectedTower = value;
+
+    this.dialogs = [];
+    if (value) {
+      const anchor = value.getCanvasPosition();
+      const dialogWidth = 200;
+      const dialogHeight = 200;
+
+      anchor.x -= dialogWidth / 2;
+      if (anchor.y > this.canvas.height / 2) {
+        anchor.y -= dialogHeight;
+      } else {
+        anchor.y += this.squareSize;
+      }
+
+      // Make sure dialog is not offscreen
+      anchor.x = Math.max(0, anchor.x);
+      anchor.x = Math.min(this.canvas.width - dialogWidth, anchor.x);
+      anchor.y = Math.max(0, anchor.y);
+      anchor.y = Math.min(this.canvas.height - dialogHeight, anchor.y);
+
+      const upgradeCost = getTowerUpgradeCost(value);
+
+      const upgradeButton = new Button({
+        game: this,
+        text: `${upgradeCost.toLocaleString("en-US")}🪙 Upgrade`,
+        position: {
+          ...anchor,
+          x: anchor.x + 25,
+          y: anchor.y + 125,
+        },
+        onClick: () => this.upgradeTower(value),
+        height: 50,
+        width: 150,
+      });
+
+      const notEnoughMoneyButton = new Button({
+        game: this,
+        text: `${upgradeCost.toLocaleString("en-US")}🪙 (❌)`,
+        position: {
+          ...anchor,
+          x: anchor.x + 25,
+          y: anchor.y + 125,
+        },
+        onClick: () => {},
+        height: 50,
+        width: 150,
+      });
+
+      this.dialogs.push(
+        new Dialog({
+          game: this,
+          height: dialogHeight,
+          width: dialogWidth,
+          position: anchor,
+          texts: [
+            `Level ${value.level} -> ${value.level + 1}`,
+            `Damage: ${getTowerStat(
+              value.type,
+              "damage",
+              value.level
+            )} -> ${getTowerStat(value.type, "damage", value.level + 1)}`,
+            `Attack Speed: ${getTowerStat(
+              value.type,
+              "attackSpeed",
+              value.level
+            )} -> ${getTowerStat(value.type, "attackSpeed", value.level + 1)}`,
+            `Range: ${getTowerStat(
+              value.type,
+              "range",
+              value.level
+            )} -> ${getTowerStat(value.type, "range", value.level + 1)}`,
+            `Splash: ${getTowerStat(
+              value.type,
+              "splash",
+              value.level
+            )} -> ${getTowerStat(value.type, "splash", value.level + 1)}`,
+          ],
+          buttons: [
+            this.money >= upgradeCost ? upgradeButton : notEnoughMoneyButton,
+          ],
+        })
+      );
+    }
   }
 
   get paused(): boolean {

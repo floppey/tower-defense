@@ -24,7 +24,7 @@ export class LightningTower extends Tower {
         });
         damage *= damageMultiplier;
 
-        while (Math.random() > 0.8) {
+        while (Math.random() > 0.9) {
           damage *= 10;
         }
 
