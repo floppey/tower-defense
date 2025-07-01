@@ -44,7 +44,7 @@ export default class Tower extends Entity {
     this.attackSpeed = stats.attackSpeed;
     this.splash = stats.splash;
     this.multiTarget = stats.multiTarget;
-    this.projectileSpeed = this.game.gameSpeed / 4;
+    this.projectileSpeed = this.game.gameSpeed;
     if (stats.debuff)
       this.debuffs = [
         {

@@ -7,6 +7,6 @@ export class ArrowTower extends Tower {
   Projectile = Arrow;
   constructor(game: Game, gridPosition: GridPosition) {
     super(game, gridPosition, "arrow");
-    this.projectileSpeed = this.game.gameSpeed / 2;
+    this.projectileSpeed = this.game.gameSpeed;
   }
 }

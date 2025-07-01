@@ -8,6 +8,6 @@ export class PoisonTower extends Tower {
 
   constructor(game: Game, gridPosition: GridPosition) {
     super(game, gridPosition, "poison");
-    this.projectileSpeed = this.game.gameSpeed / 5;
+    this.projectileSpeed = this.game.gameSpeed / 1.5;
   }
 }

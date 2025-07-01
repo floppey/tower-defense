@@ -7,6 +7,6 @@ export class CannonTower extends Tower {
   Projectile = Bullet;
   constructor(game: Game, gridPosition: GridPosition) {
     super(game, gridPosition, "cannon");
-    this.projectileSpeed = this.game.gameSpeed / 10;
+    this.projectileSpeed = this.game.gameSpeed / 2;
   }
 }

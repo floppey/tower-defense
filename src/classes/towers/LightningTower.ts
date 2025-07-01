@@ -8,7 +8,7 @@ export class LightningTower extends Tower {
 
   constructor(game: Game, gridPosition: GridPosition) {
     super(game, gridPosition, "lightning");
-    this.projectileSpeed = this.game.gameSpeed * 2;
+    this.projectileSpeed = this.game.gameSpeed * 4;
   }
 
   getDamage() {

@@ -7,6 +7,6 @@ export class IceTower extends Tower {
   Projectile = Snowball;
   constructor(game: Game, gridPosition: GridPosition) {
     super(game, gridPosition, "ice");
-    this.projectileSpeed = this.game.gameSpeed / 2;
+    this.projectileSpeed = this.game.gameSpeed;
   }
 }
