@@ -36,6 +36,19 @@ export const getTowerStat = (
     baseValue = towerStats.cannon.damage * 50;
   }
 
+  // Special case for lightning tower damage at level 10
+  if (type === "lightning" && level >= 10 && stat === "damage") {
+    baseValue = towerStats.lightning.damage * 5;
+  }
+
+  if (type === "ice" && level >= 10 && stat === "attackSpeed") {
+    baseValue = towerStats.ice.attackSpeed * 5;
+  }
+
+  if (type === "arrow" && level >= 10 && stat === "attackSpeed") {
+    baseValue = towerStats.arrow.attackSpeed * 50;
+  }
+
   if (typeof baseValue !== "number" || level === 1) {
     return baseValue ?? null;
   }

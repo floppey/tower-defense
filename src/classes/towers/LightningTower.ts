@@ -22,7 +22,9 @@ export class LightningTower extends Tower {
     });
     damage *= damageMultiplier;
 
-    while (Math.random() > 0.9) {
+    const chance = this.level < 10 ? 0.9 : 0.75;
+
+    while (Math.random() > chance) {
       damage *= 10;
     }
     return damage;
